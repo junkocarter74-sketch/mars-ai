@@ -1910,11 +1910,10 @@
 
         // ===== 实时行情后端对接（自动判断本地 / 云端）=====
         let livePrices = null;
-        // 部署到 GitHub Pages 前，请把下面占位符换成你的云后端真实地址
-        const MARS_CLOUD_BACKEND = 'https://你的云后端地址.onrender.com/api/prices'; // ← 改成你的云后端 URL
+        // 部署态读取 GitHub Actions 定时生成的同域 data.json（无需外部服务器）
         const BACKEND_URL = (location.hostname === '127.0.0.1' || location.hostname === 'localhost')
             ? 'http://127.0.0.1:8000/api/prices'   // 本地预览：连本机 Python 后端
-            : MARS_CLOUD_BACKEND;                   // 部署后：连云端后端
+            : './data.json';                        // 部署后：读 GitHub Actions 定时更新的行情
         function setBackendStatus(ok, ts) {
             const el = document.getElementById('backend-status');
             if (!el) return;

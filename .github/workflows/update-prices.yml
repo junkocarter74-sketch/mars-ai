@@ -1,0 +1,43 @@
+name: Update market prices
+
+on:
+  schedule:
+    # 每 5 分钟抓取一次行情并写回 data.json（公开仓库免费，无限时长）
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}   # 允许在 Actions 页面手动触发
+
+permissions:
+  contents: write        # 允许 GITHUB_TOKEN 提交 data.json
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch prices
+        run: python fetch_prices.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "no price change, skip commit"
+          else
+            git commit -m "chore: update market prices [skip ci]"
+            git push
+          fi
