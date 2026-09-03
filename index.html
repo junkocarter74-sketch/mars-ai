@@ -152,10 +152,17 @@
         .lobster-mini-card:hover { border-color: rgba(10, 132, 255, 0.4); transform: translateY(-2px); }
         .lobster-mini-card.inactive { opacity: 0.5; border-color: rgba(239, 68, 68, 0.3); }
         .lobster-mini-card.not-activated { border-color: rgba(255, 159, 10, 0.5); background: rgba(255, 159, 10, 0.05); }
+        /* 在线小龙虾绿点：柔和呼吸的在线状态 */
+        @keyframes lobsterDotTwinkle {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.35); opacity: 1; transform: scale(1); }
+            50% { box-shadow: 0 0 4px 1px rgba(48, 209, 88, 0.55); opacity: 0.8; transform: scale(1.08); }
+        }
+        .lobster-dot-online { animation: lobsterDotTwinkle 2.2s ease-in-out infinite; }
         .dialog-bubble { padding: 0.875rem 1rem; border-radius: 12px; margin-bottom: 0.75rem; max-width: 85%; font-size: 0.8125rem; line-height: 1.5; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .dialog-big { background: linear-gradient(135deg, rgba(10, 132, 255, 0.15), rgba(10, 132, 255, 0.05)); border: 1px solid rgba(10, 132, 255, 0.3); margin-right: auto; border-bottom-left-radius: 4px; }
         .dialog-small { background: linear-gradient(135deg, rgba(48, 209, 88, 0.15), rgba(48, 209, 88, 0.05)); border: 1px solid rgba(48, 209, 88, 0.3); margin-left: auto; border-bottom-right-radius: 4px; text-align: right; }
+        .evolution-system-bubble { background: linear-gradient(135deg, rgba(191, 90, 242, 0.12), rgba(191, 90, 242, 0.04)); border: 1px solid rgba(191, 90, 242, 0.25); margin-left: auto; margin-right: auto; max-width: 92%; border-radius: 12px; text-align: center; }
         .tab-content.hidden { display: none; }
         .countdown-timer { display: inline-flex; align-items: center; gap: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--warning); }
         .countdown-timer.expired { color: var(--danger); }
@@ -222,6 +229,9 @@
             .modal-content { max-width: 100% !important; max-height: 95vh; }
             .modal-header { flex-direction: row; flex-wrap: wrap; align-items: center; }
             .modal-body { padding: 1rem !important; }
+            /* 弹窗内两/三列布局在手机上退为单列，避免挤压换行难看 */
+            .modal-body .grid-cols-2,
+            .modal-body .grid-cols-3 { grid-template-columns: 1fr !important; }
 
             /* 表格横向滑动，避免撑破屏幕 */
             .data-table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
@@ -241,6 +251,9 @@
             #lobster-grid, #all-lobsters-grid, #activation-lobster-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
             .login-btn, .login-input { padding: 0.875rem 1rem; }
             .toast-container { left: 0.5rem; right: 0.5rem; }
+            /* 超小屏：对话气泡放宽，避免文字贴边 */
+            .dialog-bubble { max-width: 92% !important; }
+            .evolution-system-bubble { max-width: 96% !important; }
         }
         /* 刘海屏 / 圆角屏安全区内边距 */
         @supports (padding: max(0px)) {
@@ -331,10 +344,10 @@
                     </div>
                 </div>
                 <div class="stats-grid">
-                    <div class="card" onclick="openModal('available-balance-modal')"><div class="text-xs text-gray-500 mb-1">可用余额</div><div class="text-lg font-bold text-gray-900" id="available-balance">$892,156.32</div><div class="text-xs text-gray-600 mt-1">36.3% 投资组合占比</div></div>
-                    <div class="card" onclick="openModal('in-positions-modal')"><div class="text-xs text-gray-500 mb-1">持仓中</div><div class="text-lg font-bold text-apple-blue" id="in-positions">$1,456,892.52</div><div class="text-xs text-gray-600 mt-1">59.3% 投资组合占比</div></div>
+                    <div class="card" onclick="openModal('available-balance-modal')"><div class="text-xs text-gray-500 mb-1">可用余额</div><div class="text-lg font-bold text-gray-900" id="available-balance">$892,156.32</div><div class="text-xs text-gray-600 mt-1"><span id="available-ratio">36.3</span>% 投资组合占比</div></div>
+                    <div class="card" onclick="openModal('in-positions-modal')"><div class="text-xs text-gray-500 mb-1">持仓中</div><div class="text-lg font-bold text-apple-blue" id="in-positions">$1,456,892.52</div><div class="text-xs text-gray-600 mt-1"><span id="positions-ratio">59.3</span>% 投资组合占比</div></div>
                     <div class="card" onclick="openModal('fee-income-modal')"><div class="text-xs text-gray-500 mb-1">手续费收益</div><div class="text-lg font-bold text-apple-orange" id="fee-income">$24,892.12</div><div class="text-xs text-gray-600 mt-1">小龙虾盈利1%分成</div></div>
-                    <div class="card" onclick="openModal('pnl-today-modal')"><div class="text-xs text-gray-500 mb-1">今日盈亏</div><div class="text-lg font-bold text-apple-green" id="pnl-today">+$45,678.90</div><div class="text-xs text-apple-green mt-1">+1.86% 日收益率</div></div>
+                    <div class="card" onclick="openModal('pnl-today-modal')"><div class="text-xs text-gray-500 mb-1">今日盈亏</div><div class="text-lg font-bold text-apple-green" id="pnl-today">+$45,678.90</div><div class="text-xs text-apple-green mt-1">+<span id="pnl-ratio">1.86</span>% 日收益率</div></div>
                 </div>
             </div>
         </section>
@@ -408,7 +421,7 @@
                             <div class="text-sm font-semibold mb-3 text-apple-purple">⚡ Token仪表盘</div>
                             <div class="grid grid-cols-2 gap-4 mb-3">
                                 <div class="text-center p-2 bg-apple-purple/10 rounded"><div class="text-xs text-gray-600">总消耗</div><div class="text-xl font-bold text-apple-purple" id="total-tokens">10 M</div><div class="text-xs">tokens</div></div>
-                                <div class="text-center p-2 bg-apple-purple/10 rounded"><div class="text-xs text-gray-600">成本</div><div class="text-xl font-bold text-apple-purple" id="total-token-cost">$38</div><div class="text-xs text-apple-green">▼ -12%</div></div>
+                                <div class="text-center p-2 bg-apple-purple/10 rounded"><div class="text-xs text-gray-600">成本</div><div class="text-xl font-bold text-apple-purple" id="total-token-cost">$38</div><div class="text-xs text-apple-green" id="token-cost-delta">▼ -12%</div></div>
                             </div>
                             <div class="space-y-2">
                                 <div><div class="flex justify-between text-xs mb-1"><span>🦞 大龙虾</span><span id="big-lobster-tokens">456K tok / <span class="text-apple-purple">$16.80</span></span></div><div class="progress-bar"><div class="progress-fill" id="big-lobster-bar" style="width: 37%;"></div></div></div>
@@ -422,9 +435,9 @@
                         <div class="card flex-1 flex flex-col">
                             <div class="flex justify-between items-center mb-3"><span class="text-sm font-semibold text-apple-purple">🌳 进化树</span><div class="flex items-center gap-2"><span class="text-xs px-2 py-0.5 bg-apple-purple/20 rounded text-apple-purple">v2.4.8</span><button class="text-xs text-apple-blue hover:underline" onclick="openModal('evolution-detail-modal')"><span>查看全部 →</span></button></div></div>
                             <div class="grid grid-cols-3 gap-2 mb-3 text-center text-xs">
-                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">迭代次数</div><div class="text-lg font-bold text-apple-purple">1,247</div></div>
-                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">今日新增</div><div class="text-lg font-bold text-apple-green">+23</div></div>
-                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">已淘汰</div><div class="text-lg font-bold text-red-400">-7</div></div>
+                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">迭代次数</div><div class="text-lg font-bold text-apple-purple"><span id="evo-card-total">1,247</span></div></div>
+                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">今日新增</div><div class="text-lg font-bold text-apple-green">+<span id="evo-card-created">23</span></div></div>
+                                <div class="p-2 bg-apple-purple/10 rounded"><div class="text-gray-600">已淘汰</div><div class="text-lg font-bold text-red-400">-<span id="evo-card-eliminated">7</span></div></div>
                             </div>
                             <div id="learning-log" class="space-y-1 text-xs"></div>
                         </div>
@@ -464,7 +477,7 @@
                             <div class="card text-center p-3" onclick="openModal('token-cost-modal')"><div class="text-xs text-gray-600 mb-1">Token成本</div><div class="text-xl font-bold text-apple-purple">$890</div></div>
                         </div>
                         <div class="card mb-4" onclick="openModal('level-pyramid-modal')">
-                            <div class="flex justify-between items-center mb-3"><span class="text-xs font-semibold text-apple-blue">🏆 等级金字塔</span><button class="text-xs text-apple-blue hover:underline" onclick="event.stopPropagation(); openModal('level-pyramid-modal')"><span>详情 →</span></button></div>
+                            <div class="flex justify-between items-center mb-3"><span class="text-xs font-semibold text-apple-blue">🧬 智能体进化层级（Agent 进化）</span><button class="text-xs text-apple-blue hover:underline" onclick="event.stopPropagation(); openModal('level-pyramid-modal')"><span>详情 →</span></button></div>
                             <div class="space-y-2" id="level-pyramid"></div>
                         </div>
                         <div class="card mb-4" onclick="openModal('profit-distribution-modal')">
@@ -518,11 +531,11 @@
                 <div class="panel-body">
                     <div class="panel-content">
                         <div class="module-content-wrapper">
-                            <div class="module-scroll-area space-y-3">
-                                <div class="card" onclick="openModal('big-lobster-learning-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🦞</div><div class="flex-1"><div class="font-medium text-sm mb-1">大龙虾学习</div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 87%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span>87% 完成</span><span>234 会话</span></div></div></div></div>
-                                <div class="card" onclick="openModal('lobster-army-learning-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-lg">🦞</div><div class="flex-1"><div class="font-medium text-sm mb-1">小龙虾军团学习</div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 72%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span>72% 完成</span><span>1,892 分享</span></div></div></div></div>
-                                <div class="card" onclick="openModal('model-evolution-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-pink-500 flex items-center justify-center text-lg">🧬</div><div class="flex-1"><div class="font-medium text-sm mb-1">模型进化</div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 65%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span>65% 完成</span><span>v2.4.7 → v2.4.8</span></div></div></div></div>
-                                <div class="card" onclick="openModal('win-rate-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-lg">📈</div><div class="flex-1"><div class="font-medium text-sm mb-1">胜率提升</div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 78%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span>78% 完成</span><span>+12.5% 提升</span></div></div></div></div>
+                            <div class="module-scroll-area space-y-3" id="home-university-courses">
+                                <div class="card" onclick="openModal('big-lobster-learning-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🦞</div><div class="flex-1"><div class="font-medium text-sm mb-1">大龙虾学习</div><div class="progress-bar h-1.5"><div class="progress-fill" id="home-big-lobster-progress-bar" style="width: 87%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span id="home-big-lobster-progress-text">87% 完成</span><span id="home-big-lobster-sessions">234 会话</span></div></div></div></div>
+                                <div class="card" onclick="openModal('lobster-army-learning-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-lg">🦞</div><div class="flex-1"><div class="font-medium text-sm mb-1">小龙虾军团学习</div><div class="progress-bar h-1.5"><div class="progress-fill" id="home-army-progress-bar" style="width: 72%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span id="home-army-progress-text">72% 完成</span><span id="home-army-shares">1,892 分享</span></div></div></div></div>
+                                <div class="card" onclick="openModal('model-evolution-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-pink-500 flex items-center justify-center text-lg">🧬</div><div class="flex-1"><div class="font-medium text-sm mb-1">模型进化</div><div class="progress-bar h-1.5"><div class="progress-fill" id="home-model-evolution-progress-bar" style="width: 65%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span id="home-model-evolution-progress-text">65% 完成</span><span id="home-model-evolution-version">v2.4.7 → v2.4.8</span></div></div></div></div>
+                                <div class="card" onclick="openModal('win-rate-modal')"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-lg">📈</div><div class="flex-1"><div class="font-medium text-sm mb-1">胜率提升</div><div class="progress-bar h-1.5"><div class="progress-fill" id="home-win-rate-progress-bar" style="width: 78%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span id="home-win-rate-progress-text">78% 完成</span><span id="home-win-rate-boost">+12.5% 提升</span></div></div></div></div>
                             </div>
                             <button class="module-action-btn" onclick="openModal('university-modal')"><span>进入大学</span><span>→</span></button>
                         </div>
@@ -558,7 +571,7 @@
     <div class="modal-overlay" id="available-balance-modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
-                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-green to-teal-500 flex items-center justify-center text-2xl">💰</div><div><h2 class="text-xl font-bold">可用余额</h2><p class="text-sm text-gray-500">$892,156.32</p></div></div>
+                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-green to-teal-500 flex items-center justify-center text-2xl">💰</div><div><h2 class="text-xl font-bold">可用余额</h2><p class="text-sm text-gray-500" id="available-balance-modal-value">$892,156.32</p></div></div>
                 <button class="btn btn-danger btn-sm" onclick="closeModal('available-balance-modal')">✕</button>
             </div>
             <div class="modal-body">
@@ -582,15 +595,15 @@
     <div class="modal-overlay" id="in-positions-modal">
         <div class="modal-content" style="max-width: 1200px;">
             <div class="modal-header">
-                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-2xl">📈</div><div><h2 class="text-xl font-bold">持仓中</h2><p class="text-sm text-gray-500">$1,456,892.52 - 24个活跃持仓</p></div></div>
+                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-2xl">📈</div><div><h2 class="text-xl font-bold">持仓中</h2><p class="text-sm text-gray-500" id="in-positions-modal-value">$1,456,892.52 - 24个活跃持仓</p></div></div>
                 <button class="btn btn-danger btn-sm" onclick="closeModal('in-positions-modal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">多头持仓</div><div class="text-xl font-bold text-apple-green">18</div><div class="text-xs text-apple-green">$1,123,456</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">空头持仓</div><div class="text-xl font-bold text-red-400">6</div><div class="text-xs text-red-500">$333,436</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">平均持仓规模</div><div class="text-xl font-bold text-gray-900">$60,704</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">未实现盈亏</div><div class="text-xl font-bold text-apple-green">+$45,678</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">多头持仓</div><div class="text-xl font-bold text-apple-green" id="pos-long-count">18</div><div class="text-xs text-apple-green" id="pos-long-value">$1,123,456</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">空头持仓</div><div class="text-xl font-bold text-red-400" id="pos-short-count">6</div><div class="text-xs text-red-500" id="pos-short-value">$333,436</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">平均持仓规模</div><div class="text-xl font-bold text-gray-900" id="pos-avg-size">$60,704</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">未实现盈亏</div><div class="text-xl font-bold text-apple-green" id="pos-total-pnl">+$45,678</div></div>
                 </div>
                 <table class="data-table">
                     <thead><tr><th>产品</th><th>方向</th><th>规模</th><th>入场价格</th><th>当前价格</th><th>盈亏</th><th>盈亏%</th><th>龙虾</th></tr></thead>
@@ -639,7 +652,7 @@
     <div class="modal-overlay" id="pnl-today-modal">
         <div class="modal-content" style="max-width: 1100px;">
             <div class="modal-header">
-                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-2xl">💵</div><div><h2 class="text-xl font-bold">今日盈亏</h2><p class="text-sm text-apple-green">+$45,678.90 (+1.86%)</p></div></div>
+                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-2xl">💵</div><div><h2 class="text-xl font-bold">今日盈亏</h2><p class="text-sm text-apple-green" id="pnl-today-modal-value">+$45,678.90 (+1.86%)</p></div></div>
                 <button class="btn btn-danger btn-sm" onclick="closeModal('pnl-today-modal')">✕</button>
             </div>
             <div class="modal-body">
@@ -689,7 +702,7 @@
     <div class="modal-overlay" id="product-detail-modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
-                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-2xl">📊</div><div><h2 class="text-xl font-bold" id="product-detail-name">BTC-5M</h2><p class="text-sm text-gray-500" id="product-detail-category">加密货币 • Polymarket</p></div></div>
+                <div class="flex items-center gap-3"><div id="product-detail-icon" class="w-12 h-12 flex items-center justify-center">📊</div><div><h2 class="text-xl font-bold" id="product-detail-name">BTC-5M</h2><p class="text-sm text-gray-500" id="product-detail-category">加密货币</p></div></div>
                 <button class="btn btn-danger btn-sm" onclick="closeModal('product-detail-modal')">✕</button>
             </div>
             <div class="modal-body">
@@ -729,10 +742,10 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">GPT-5.6 Sol</div><div class="text-xl font-bold text-apple-blue">456K</div><div class="text-xs text-apple-purple">$16.80</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Claude Opus 5</div><div class="text-xl font-bold text-apple-purple">312K</div><div class="text-xs text-apple-purple">$11.52</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Kimi K3</div><div class="text-xl font-bold text-apple-green">289K</div><div class="text-xs text-apple-purple">$5.78</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">本地模型</div><div class="text-xl font-bold text-apple-orange">178K</div><div class="text-xs text-apple-purple">$0.00</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">GPT-5.6 Sol</div><div class="text-xl font-bold text-apple-blue" id="modal-gpt-tokens">456K</div><div class="text-xs text-apple-purple" id="modal-gpt-cost">$16.80</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Claude Opus 5</div><div class="text-xl font-bold text-apple-purple" id="modal-claude-tokens">312K</div><div class="text-xs text-apple-purple" id="modal-claude-cost">$11.52</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Kimi K3</div><div class="text-xl font-bold text-apple-green" id="modal-kimi-tokens">289K</div><div class="text-xs text-apple-purple" id="modal-kimi-cost">$5.78</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">自研模型</div><div class="text-xl font-bold text-apple-orange" id="modal-local-tokens">178K</div><div class="text-xs text-apple-purple" id="modal-local-cost">$0.00</div></div>
                 </div>
                 <table class="data-table">
                     <thead><tr><th>时间</th><th>模型</th><th>操作</th><th>Tokens</th><th>成本</th><th>龙虾</th></tr></thead>
@@ -749,18 +762,12 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">总迭代次数</div><div class="text-2xl font-bold text-apple-purple">1,247</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已创建策略</div><div class="text-2xl font-bold text-apple-green">+23 今日</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已淘汰</div><div class="text-2xl font-bold text-red-400">-7 今日</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">总迭代次数</div><div class="text-2xl font-bold text-apple-purple" id="evo-total-iter">1,247</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已创建策略</div><div class="text-2xl font-bold text-apple-green" id="evo-today-created">+23 今日</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已淘汰</div><div class="text-2xl font-bold text-red-400" id="evo-today-eliminated">-7 今日</div></div>
                 </div>
                 <h3 class="text-sm font-semibold text-apple-blue mb-3">学习对话</h3>
-                <div class="bg-gray-100 rounded-lg p-4 max-h-96 overflow-y-auto" id="evolution-dialog-container">
-                    <div class="dialog-bubble dialog-big"><div class="font-bold mb-1">🦞 大龙虾</div><div>BTC在$67K显示突破形态，波动率上升至15.2%</div><div class="text-xs text-gray-600 mt-1">14:23:45 • GPT-4分析 • 2,456 tokens</div></div>
-                    <div class="dialog-bubble dialog-small"><div class="font-bold mb-1">🦞 小龙虾 #042</div><div>确认，我的分析中检测到类似形态。RSI为72，超过阈值。</div><div class="text-xs text-gray-600 mt-1">14:23:42 • Claude-3 • 1,234 tokens</div></div>
-                    <div class="dialog-bubble dialog-big"><div class="font-bold mb-1">🦞 大龙虾</div><div>以82%置信度阈值执行分析。与2024年3月历史数据匹配。</div><div class="text-xs text-gray-600 mt-1">14:23:38 • GPT-4 • 3,678 tokens</div></div>
-                    <div class="dialog-bubble dialog-small"><div class="font-bold mb-1">🦞 小龙虾 #156</div><div>学习：高波动率 + RSI > 70 = 基于234次回测胜率提升12%</div><div class="text-xs text-gray-600 mt-1">14:23:35 • Kimi • 892 tokens</div></div>
-                    <div class="dialog-bubble dialog-big"><div class="font-bold mb-1">🦞 大龙虾</div><div>策略已分享给网络中89个活跃小龙虾。进化树已更新。</div><div class="text-xs text-gray-600 mt-1">14:23:30 • GPT-4 • 1,567 tokens</div></div>
-                </div>
+                <div class="bg-gray-100 rounded-lg p-4 max-h-96 overflow-y-auto" id="evolution-dialog-container"></div>
             </div>
         </div>
     </div>
@@ -772,9 +779,9 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                    <div class="card"><div class="text-xs text-gray-500">学习进度</div><div class="text-2xl font-bold text-apple-orange">87.3%</div><div class="progress-bar mt-2"><div class="progress-fill" style="width: 87%"></div></div></div>
-                    <div class="card"><div class="text-xs text-gray-500">已训练模型</div><div class="text-2xl font-bold text-gray-900">12</div><div class="text-xs text-apple-green mt-1">+3 本周</div></div>
-                    <div class="card"><div class="text-xs text-gray-500">数据点</div><div class="text-2xl font-bold text-apple-blue">2.4M</div><div class="text-xs text-gray-600 mt-1">最后更新: 2分钟前</div></div>
+                    <div class="card"><div class="text-xs text-gray-500">学习进度</div><div class="text-2xl font-bold text-apple-orange" id="learning-progress-value">87.3%</div><div class="progress-bar mt-2"><div class="progress-fill" id="learning-progress-bar" style="width: 87%"></div></div></div>
+                    <div class="card"><div class="text-xs text-gray-500">已训练模型</div><div class="text-2xl font-bold text-gray-900" id="learning-models-value">12</div><div class="text-xs text-apple-green mt-1">+3 本周</div></div>
+                    <div class="card"><div class="text-xs text-gray-500">数据点</div><div class="text-2xl font-bold text-apple-blue" id="learning-data-points">2.4M</div><div class="text-xs text-gray-600 mt-1" id="learning-last-update">最后更新: 2分钟前</div></div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
@@ -806,11 +813,11 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-5 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">👑 传说</div><div class="text-lg font-bold text-red-400">$2.1M</div><div class="text-xs text-gray-600">12只小龙虾</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">💎 大师</div><div class="text-lg font-bold text-apple-purple">$1.8M</div><div class="text-xs text-gray-600">48只小龙虾</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">🥇 专家</div><div class="text-lg font-bold text-apple-orange">$1.2M</div><div class="text-xs text-gray-600">127只小龙虾</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">🥈 精英</div><div class="text-lg font-bold text-apple-green">$420K</div><div class="text-xs text-gray-600">198只小龙虾</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">🥉 新手</div><div class="text-lg font-bold text-gray-500">$150K</div><div class="text-xs text-gray-600">115只小龙虾</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title="🚀 超级智能（传说）">🚀 超级智能（传说）</div><div class="text-lg font-bold text-red-400">$2.1M</div><div class="text-xs text-gray-600">12只小龙虾</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title="🤖 自主执行（大师）">🤖 自主执行（大师）</div><div class="text-lg font-bold text-apple-purple">$1.8M</div><div class="text-xs text-gray-600">48只小龙虾</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title="⚡ 推理规划（专家）">⚡ 推理规划（专家）</div><div class="text-lg font-bold text-apple-orange">$1.2M</div><div class="text-xs text-gray-600">127只小龙虾</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title="👁 感知决策（精英）">👁 感知决策（精英）</div><div class="text-lg font-bold text-apple-green">$420K</div><div class="text-xs text-gray-600">198只小龙虾</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title="🧠 本能反应（新手）">🧠 本能反应（新手）</div><div class="text-lg font-bold text-gray-500">$150K</div><div class="text-xs text-gray-600">115只小龙虾</div></div>
                 </div>
                 <div id="capital-distribution-chart" style="height: 250px;"></div>
             </div>
@@ -856,7 +863,7 @@
     <div class="modal-overlay" id="level-pyramid-modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
-                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-2xl">🏆</div><div><h2 class="text-xl font-bold">等级金字塔</h2><p class="text-sm text-gray-500">500只小龙虾等级分布</p></div></div>
+                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-2xl">🧬</div><div><h2 class="text-xl font-bold">智能体进化层级（Agent 进化）</h2><p class="text-sm text-gray-500">500只Agent智能等级分布</p></div></div>
                 <button class="btn btn-danger btn-sm" onclick="closeModal('level-pyramid-modal')">✕</button>
             </div>
             <div class="modal-body"><div class="space-y-4" id="level-pyramid-detail"></div></div>
@@ -884,16 +891,16 @@
                     <div class="flex items-center gap-2"><span class="text-gray-600">学习中:</span><span class="text-apple-orange font-bold">89</span></div>
                     <div class="flex items-center gap-2"><span class="text-gray-600">离线:</span><span class="text-red-400 font-bold">13</span></div>
                 </div>
-                <div class="flex gap-3 mb-4">
-                    <select class="px-3 py-2 rounded-lg bg-gray-100 border border-gray-200 text-sm" onchange="filterLobsters(this.value)"><option value="all">全部状态</option><option value="online">仅在线</option><option value="executing">执行中</option><option value="learning">学习中</option><option value="inactive">离线</option><option value="not-activated">待激活</option></select>
-                    <input type="text" placeholder="搜索ID..." class="px-4 py-2 rounded-lg bg-gray-100 border border-gray-200 text-sm w-48" onkeyup="searchLobsters(this.value)">
+                <div class="flex gap-3 mb-4 flex-wrap">
+                    <select class="px-3 py-2 rounded-lg bg-gray-100 border border-gray-200 text-sm flex-shrink-0" onchange="filterLobsters(this.value)"><option value="all">全部状态</option><option value="online">仅在线</option><option value="executing">执行中</option><option value="learning">学习中</option><option value="inactive">离线</option><option value="not-activated">待激活</option></select>
+                    <input type="text" placeholder="搜索ID..." class="px-4 py-2 rounded-lg bg-gray-100 border border-gray-200 text-sm flex-1 min-w-0" onkeyup="searchLobsters(this.value)">
                 </div>
-                <div class="flex gap-4 mb-4 text-xs">
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> 传说</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-apple-purple"></span> 大师</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-500"></span> 专家</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-apple-green"></span> 精英</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-gray-500"></span> 新手</span>
+                <div class="flex gap-4 mb-4 text-xs flex-wrap">
+                    <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-red-500"></span> 超级智能（传说）</span>
+                    <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-apple-purple"></span> 自主执行（大师）</span>
+                    <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-amber-500"></span> 推理规划（专家）</span>
+                    <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-apple-green"></span> 感知决策（精英）</span>
+                    <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-gray-500"></span> 本能反应（新手）</span>
                     <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-500/50 border border-amber-500"></span> 待激活</span>
                 </div>
                 <div id="all-lobsters-grid" class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 gap-2"></div>
@@ -910,7 +917,7 @@
             <div class="modal-header">
                 <div class="flex items-center gap-4">
                     <span class="text-4xl">🦞</span>
-                    <div><h2 class="text-2xl font-bold text-apple-blue" id="lobster-detail-title">小龙虾 #001</h2><p class="text-sm text-gray-600" id="lobster-detail-level">传说等级</p></div>
+                    <div><h2 class="text-2xl font-bold text-apple-blue" id="lobster-detail-title">小龙虾 #001</h2><p class="text-sm text-gray-600" id="lobster-detail-level">超级智能（传说） 等级</p></div>
                     <div id="lobster-activation-badge" class="activation-badge activation-active"><span class="w-2 h-2 rounded-full bg-apple-green"></span><span>已激活</span></div>
                     <div id="lobster-countdown" class="countdown-timer hidden"><span>⏱</span><span id="countdown-value">29天 14小时 32分</span></div>
                 </div>
@@ -1103,25 +1110,25 @@
                 <button class="btn btn-danger btn-sm" onclick="closeModal('university-modal')">✕</button>
             </div>
             <div class="modal-body">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="university-courses-grid">
                     <div class="space-y-4">
-                        <div class="card" onclick="openModal('big-lobster-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🦞</div><div><div class="font-medium">大龙虾学习</div><div class="text-xs text-gray-600">高级AI策略</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" style="width: 87%"></div></div><div class="flex justify-between text-xs text-gray-600"><span>87% 完成</span><span>234 会话</span></div></div>
-                        <div class="card" onclick="openModal('lobster-army-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-lg">🦞</div><div><div class="font-medium">小龙虾军团学习</div><div class="text-xs text-gray-600">分布式策略</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" style="width: 72%"></div></div><div class="flex justify-between text-xs text-gray-600"><span>72% 完成</span><span>1,892 分享</span></div></div>
-                        <div class="card" onclick="openModal('model-evolution-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-pink-500 flex items-center justify-center text-lg">🧬</div><div><div class="font-medium">模型进化</div><div class="text-xs text-gray-600">v2.4.7 → v2.4.8</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" style="width: 65%"></div></div><div class="flex justify-between text-xs text-gray-600"><span>65% 完成</span><span>1,247 迭代</span></div></div>
+                        <div class="card" onclick="openModal('big-lobster-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🦞</div><div><div class="font-medium">大龙虾学习</div><div class="text-xs text-gray-600">高级AI策略</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" id="univ-big-lobster-bar" style="width: 87%"></div></div><div class="flex justify-between text-xs text-gray-600"><span id="univ-big-lobster-text">87% 完成</span><span id="univ-big-lobster-sessions">234 会话</span></div></div>
+                        <div class="card" onclick="openModal('lobster-army-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-green to-green-500 flex items-center justify-center text-lg">🦞</div><div><div class="font-medium">小龙虾军团学习</div><div class="text-xs text-gray-600">分布式策略</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" id="univ-army-bar" style="width: 72%"></div></div><div class="flex justify-between text-xs text-gray-600"><span id="univ-army-text">72% 完成</span><span id="univ-army-shares">1,892 分享</span></div></div>
+                        <div class="card" onclick="openModal('model-evolution-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-pink-500 flex items-center justify-center text-lg">🧬</div><div><div class="font-medium">模型进化</div><div class="text-xs text-gray-600" id="univ-model-version">v2.4.7 → v2.4.8</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" id="univ-model-bar" style="width: 65%"></div></div><div class="flex justify-between text-xs text-gray-600"><span id="univ-model-text">65% 完成</span><span id="univ-model-iterations">1,247 迭代</span></div></div>
                     </div>
                     <div class="space-y-4">
-                        <div class="card" onclick="openModal('win-rate-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-lg">📈</div><div><div class="font-medium">胜率提升</div><div class="text-xs text-gray-600">优化交易表现</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" style="width: 78%"></div></div><div class="flex justify-between text-xs text-gray-600"><span>78% 完成</span><span>+12.5% 提升</span></div></div>
-                        <div class="card" onclick="openModal('recent-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-teal-500 flex items-center justify-center text-lg">📚</div><div><div class="font-medium">最近学习</div><div class="text-xs text-gray-600">最新课程</div></div></div><div class="space-y-2 text-sm"><div class="flex justify-between"><span>风险管理</span><span class="text-apple-green">已完成</span></div><div class="flex justify-between"><span>套利策略</span><span class="text-apple-orange">进行中</span></div><div class="flex justify-between"><span>AI策略开发</span><span class="text-gray-600">待开始</span></div></div></div>
-                        <div class="card" onclick="openModal('strategy-evolution-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-lg">🎯</div><div><div class="font-medium">策略进化</div><div class="text-xs text-gray-600">策略优化</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" style="width: 82%"></div></div><div class="flex justify-between text-xs text-gray-600"><span>82% 完成</span><span>45 策略</span></div></div>
+                        <div class="card" onclick="openModal('win-rate-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-orange to-yellow-500 flex items-center justify-center text-lg">📈</div><div><div class="font-medium">胜率提升</div><div class="text-xs text-gray-600">优化交易表现</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" id="univ-win-rate-bar" style="width: 78%"></div></div><div class="flex justify-between text-xs text-gray-600"><span id="univ-win-rate-text">78% 完成</span><span id="univ-win-rate-boost">+12.5% 提升</span></div></div>
+                        <div class="card" onclick="openModal('recent-learning-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-teal-500 flex items-center justify-center text-lg">📚</div><div><div class="font-medium">最近学习</div><div class="text-xs text-gray-600">最新课程</div></div></div><div class="space-y-2 text-sm"><div class="flex justify-between"><span>风险管理</span><span class="text-apple-green" id="univ-recent-risk">已完成</span></div><div class="flex justify-between"><span>套利策略</span><span class="text-apple-orange" id="univ-recent-arb">进行中</span></div><div class="flex justify-between"><span>AI策略开发</span><span class="text-gray-600" id="univ-recent-ai">待开始</span></div></div></div>
+                        <div class="card" onclick="openModal('strategy-evolution-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-lg">🎯</div><div><div class="font-medium">策略进化</div><div class="text-xs text-gray-600">策略优化</div></div></div><div class="progress-bar h-1.5 mb-2"><div class="progress-fill" id="univ-strategy-bar" style="width: 82%"></div></div><div class="flex justify-between text-xs text-gray-600"><span id="univ-strategy-text">82% 完成</span><span id="univ-strategy-count">45 策略</span></div></div>
                     </div>
                     <div class="space-y-4">
-                        <div class="card" onclick="openModal('model-performance-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-indigo-500 flex items-center justify-center text-lg">📊</div><div><div class="font-medium">模型性能对比</div><div class="text-xs text-gray-600">性能分析</div></div></div><div class="space-y-2 text-sm"><div class="flex justify-between"><span>GPT-5.6 Sol</span><span class="text-apple-green">94% 准确率</span></div><div class="flex justify-between"><span>Claude Opus 5</span><span class="text-apple-green">91% 准确率</span></div><div class="flex justify-between"><span>Kimi K3</span><span class="text-apple-green">89% 准确率</span></div></div></div>
+                        <div class="card" onclick="openModal('model-performance-modal')"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-purple to-indigo-500 flex items-center justify-center text-lg">📊</div><div><div class="font-medium">模型性能对比</div><div class="text-xs text-gray-600">性能分析</div></div></div><div class="space-y-2 text-sm"><div class="flex justify-between"><span>GPT-5.6 Sol</span><span class="text-apple-green" id="univ-perf-gpt">94% 准确率</span></div><div class="flex justify-between"><span>Claude Opus 5</span><span class="text-apple-green" id="univ-perf-claude">91% 准确率</span></div><div class="flex justify-between"><span>Kimi K3</span><span class="text-apple-green" id="univ-perf-kimi">89% 准确率</span></div><div class="flex justify-between"><span>自研模型</span><span class="text-apple-orange" id="univ-perf-local">85% 准确率</span></div></div></div>
                         <div class="card">
                             <h3 class="font-semibold text-apple-blue mb-3">学习进度</h3>
                             <div class="space-y-3">
-                                <div><div class="flex justify-between text-sm mb-1"><span>风险管理</span><span class="text-apple-green">100%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 100%"></div></div></div>
-                                <div><div class="flex justify-between text-sm mb-1"><span>套利策略</span><span class="text-apple-orange">67%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 67%"></div></div></div>
-                                <div><div class="flex justify-between text-sm mb-1"><span>AI策略开发</span><span class="text-gray-600">0%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" style="width: 0%"></div></div></div>
+                                <div><div class="flex justify-between text-sm mb-1"><span>风险管理</span><span class="text-apple-green" id="univ-progress-risk-text">100%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" id="univ-progress-risk-bar" style="width: 100%"></div></div></div>
+                                <div><div class="flex justify-between text-sm mb-1"><span>套利策略</span><span class="text-apple-orange" id="univ-progress-arb-text">67%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" id="univ-progress-arb-bar" style="width: 67%"></div></div></div>
+                                <div><div class="flex justify-between text-sm mb-1"><span>AI策略开发</span><span class="text-gray-600" id="univ-progress-ai-text">0%</span></div><div class="progress-bar h-1.5"><div class="progress-fill" id="univ-progress-ai-bar" style="width: 0%"></div></div></div>
                             </div>
                         </div>
                     </div>
@@ -1137,9 +1144,9 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习进度</div><div class="text-2xl font-bold text-apple-blue">87%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习会话</div><div class="text-2xl font-bold text-gray-900">234</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">知识节点</div><div class="text-2xl font-bold text-apple-green">1,456</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习进度</div><div class="text-2xl font-bold text-apple-blue" id="big-lobster-progress">87%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习会话</div><div class="text-2xl font-bold text-gray-900" id="big-lobster-sessions">234</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">知识节点</div><div class="text-2xl font-bold text-apple-green" id="big-lobster-nodes">1,456</div></div>
                 </div>
                 <div class="card mb-4">
                     <h3 class="text-sm font-semibold text-apple-blue mb-3">学习对话</h3>
@@ -1182,9 +1189,9 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习进度</div><div class="text-2xl font-bold text-apple-green">72%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">知识分享</div><div class="text-2xl font-bold text-gray-900">1,892</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">活跃学习者</div><div class="text-2xl font-bold text-apple-green">487</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">学习进度</div><div class="text-2xl font-bold text-apple-green" id="army-progress">72%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">知识分享</div><div class="text-2xl font-bold text-gray-900" id="army-shares">1,892</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">活跃学习者</div><div class="text-2xl font-bold text-apple-green" id="army-learners">487</div></div>
                 </div>
                 <div class="card mb-4">
                     <h3 class="text-sm font-semibold text-apple-green mb-3">学习对话</h3>
@@ -1227,10 +1234,10 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">进化进度</div><div class="text-2xl font-bold text-apple-purple">65%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">迭代次数</div><div class="text-2xl font-bold text-gray-900">1,247</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">新策略</div><div class="text-2xl font-bold text-apple-green">+23</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已淘汰</div><div class="text-2xl font-bold text-red-400">-7</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">进化进度</div><div class="text-2xl font-bold text-apple-purple" id="model-evolution-progress">65%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">迭代次数</div><div class="text-2xl font-bold text-gray-900" id="model-evolution-iterations">1,247</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">新策略</div><div class="text-2xl font-bold text-apple-green" id="model-evolution-new">+23</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已淘汰</div><div class="text-2xl font-bold text-red-400" id="model-evolution-eliminated">-7</div></div>
                 </div>
                 <div class="card mb-4">
                     <h3 class="text-sm font-semibold text-apple-purple mb-3">进化过程</h3>
@@ -1273,10 +1280,10 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">提升进度</div><div class="text-2xl font-bold text-apple-orange">78%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">当前胜率</div><div class="text-2xl font-bold text-apple-green">72.5%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">目标胜率</div><div class="text-2xl font-bold text-apple-blue">85%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">提升幅度</div><div class="text-2xl font-bold text-apple-green">+12.5%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">提升进度</div><div class="text-2xl font-bold text-apple-orange" id="win-rate-progress">78%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">当前胜率</div><div class="text-2xl font-bold text-apple-green" id="win-rate-current">72.5%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">目标胜率</div><div class="text-2xl font-bold text-apple-blue" id="win-rate-target">85%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">提升幅度</div><div class="text-2xl font-bold text-apple-green" id="win-rate-boost">+12.5%</div></div>
                 </div>
                 <div class="card mb-4">
                     <h3 class="text-sm font-semibold text-apple-orange mb-3">提升过程</h3>
@@ -1315,13 +1322,7 @@
                         </div>
                         <div class="progress-bar h-1.5"><div class="progress-fill" style="width: 67%"></div></div>
                     </div>
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🤖</div><div><div class="font-medium">AI策略开发</div><div class="text-xs text-gray-600">构建自定义AI模型</div></div></div>
-                            <span class="badge badge-novice">待开始</span>
-                        </div>
-                        <div class="progress-bar h-1.5"><div class="progress-fill" style="width: 0%"></div></div>
-                    </div>
+                    <div class="card" onclick="openModal('ai-dev-modal')"><div class="flex justify-between items-center mb-2"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-apple-blue to-apple-blue flex items-center justify-center text-lg">🤖</div><div><div class="font-medium">AI策略开发</div><div class="text-xs text-gray-600">构建自研AI交易模型</div></div></div><span class="badge badge-expert">进行中</span></div><div class="progress-bar h-1.5"><div class="progress-fill" id="home-ai-dev-progress-bar" style="width: 12%"></div></div><div class="flex justify-between text-xs text-gray-600 mt-1"><span id="home-ai-dev-progress-text">12% 完成</span><span id="home-ai-dev-models">1 模型</span></div></div>
                 </div>
             </div>
         </div>
@@ -1424,9 +1425,9 @@
             </div>
             <div class="modal-body">
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">进化进度</div><div class="text-2xl font-bold text-red-400">82%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">策略数量</div><div class="text-2xl font-bold text-gray-900">45</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">优化次数</div><div class="text-2xl font-bold text-apple-green">+23</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">进化进度</div><div class="text-2xl font-bold text-red-400" id="strategy-evolution-progress">82%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">策略数量</div><div class="text-2xl font-bold text-gray-900" id="strategy-evolution-count">45</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">优化次数</div><div class="text-2xl font-bold text-apple-green" id="strategy-evolution-optimizations">+23</div></div>
                 </div>
                 <div class="card mb-4">
                     <h3 class="text-sm font-semibold text-red-400 mb-3">进化过程</h3>
@@ -1442,6 +1443,68 @@
             </div>
         </div>
     </div>
+    <div class="modal-overlay" id="ai-dev-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-apple-blue to-cyan-500 flex items-center justify-center text-2xl">🤖</div><div><h2 class="text-xl font-bold">AI策略开发</h2><p class="text-sm text-gray-500">构建自研AI交易模型</p></div></div>
+                <button class="btn btn-danger btn-sm" onclick="closeModal('ai-dev-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">课程进度</div><div class="text-2xl font-bold text-apple-blue" id="ai-dev-progress">12%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">已训练模型</div><div class="text-2xl font-bold text-gray-900" id="ai-dev-models">1</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">算力消耗</div><div class="text-2xl font-bold text-apple-green" id="ai-dev-compute">1,240 TFLOPS</div></div>
+                </div>
+                <div class="card mb-4">
+                    <h3 class="text-sm font-semibold text-apple-blue mb-3">学习内容</h3>
+                    <div class="learning-interface" id="ai-dev-interface">
+                        <div class="learning-line new">[14:23:45] 🤖 AI引擎: 启动自研模型训练流水线</div>
+                        <div class="learning-line">[14:23:30] 🤖 AI引擎: 加载Transformer架构，初始化8B参数</div>
+                        <div class="learning-line">[14:23:15] 🤖 AI引擎: 配置MoE路由层，专家网络16个</div>
+                        <div class="learning-line">[14:22:45] 🤖 AI引擎: 接入GPU算力集群，并行度64</div>
+                        <div class="learning-line">[14:22:30] 🤖 AI引擎: 开始第一轮量化交易指令微调</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="card">
+                        <h3 class="text-sm font-semibold text-apple-blue mb-3">核心概念</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>Transformer 注意力</span><span class="text-apple-green">✓</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>MoE 专家混合</span><span class="text-apple-green">✓</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>RAG 检索增强</span><span class="text-apple-orange">进行中</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>Agent 工具调用</span><span class="text-apple-orange">进行中</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>FP8 量化训练</span><span class="text-apple-orange">进行中</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>RLHF 人类反馈对齐</span><span class="text-gray-600">待开始</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>推理时 Scaling</span><span class="text-gray-600">待开始</span></div>
+                            <div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>多模态融合</span><span class="text-gray-600">待开始</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-sm font-semibold text-apple-blue mb-3">训练指标</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-gray-600">当前参数</span><span class="text-apple-blue" id="ai-dev-params">8 B</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">训练数据</span><span class="text-apple-green" id="ai-dev-dataset">2.4M 条</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">模型准确率</span><span class="text-apple-green" id="ai-dev-accuracy">78.4%</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">GPU 利用率</span><span class="text-apple-green" id="ai-dev-gpu">87%</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">推理延迟</span><span class="text-apple-green" id="ai-dev-latency">23 ms</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">损失下降</span><span class="text-apple-green" id="ai-dev-loss">-12.5%</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Token 吞吐</span><span class="text-apple-green" id="ai-dev-throughput">4,820 tok/s</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">思维链长度</span><span class="text-apple-green" id="ai-dev-chain">12 步</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-sm font-semibold text-apple-blue mb-3">前沿方向</h3>
+                    <div class="grid grid-cols-4 gap-2 text-sm">
+                        <div class="p-2 bg-gradient-to-br from-blue-50 to-cyan-50 rounded text-center"><div class="text-lg mb-1">🌍</div><div class="font-medium">世界模型</div><div class="text-xs text-gray-500">模拟市场动态</div></div>
+                        <div class="p-2 bg-gradient-to-br from-purple-50 to-pink-50 rounded text-center"><div class="text-lg mb-1">🤖</div><div class="font-medium">具身智能</div><div class="text-xs text-gray-500">AutoTrade Agent</div></div>
+                        <div class="p-2 bg-gradient-to-br from-green-50 to-teal-50 rounded text-center"><div class="text-lg mb-1">⚡</div><div class="font-medium">推理时 Scaling</div><div class="text-xs text-gray-500">Test-time Compute</div></div>
+                        <div class="p-2 bg-gradient-to-br from-orange-50 to-yellow-50 rounded text-center"><div class="text-lg mb-1">🔗</div><div class="font-medium">神经符号 AI</div><div class="text-xs text-gray-500">规则+神经网络</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal-overlay" id="model-performance-modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
@@ -1453,7 +1516,7 @@
                     <div class="card text-center"><div class="text-xs text-gray-600 mb-1">GPT-5.6 Sol</div><div class="text-xl font-bold text-apple-blue">94%</div></div>
                     <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Claude Opus 5</div><div class="text-xl font-bold text-apple-purple">91%</div></div>
                     <div class="card text-center"><div class="text-xs text-gray-600 mb-1">Kimi K3</div><div class="text-xl font-bold text-apple-green">89%</div></div>
-                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">本地模型</div><div class="text-xl font-bold text-apple-orange">85%</div></div>
+                    <div class="card text-center"><div class="text-xs text-gray-600 mb-1">自研模型</div><div class="text-xl font-bold text-apple-orange">85%</div></div>
                 </div>
                 <div id="model-performance-chart" style="height: 350px;"></div>
             </div>
@@ -1537,29 +1600,328 @@
             { id: 13, name: '人民币', category: 'gold', prob: 63, vol: '$4.8M', profit: '+$11,200', icon: '💴' },
         ];
 
+        // ===== 标的品牌图标（苹果 App Icon 风：squircle + 品牌色渐变 + 品牌 SVG 形象）=====
+        const tokenIcons = {
+            'BTC-5M':        { bg: 'linear-gradient(135deg,#f7931a,#b56a00)', ch: '₿' },
+            'ETH-1H':        { bg: 'linear-gradient(135deg,#627eea,#3c4f96)', svg: '<path d="M12 2.8 19 12 12 16.6 5 12Z"/><path d="M12 18.2 19 13.5 12 21.6 5 13.5Z" opacity=".6"/>' },
+            'SOL-15M':       { bg: 'linear-gradient(135deg,#9945FF,#14F195)', svg: '<path d="M7 5.8h11.4L16 8.4H4.6Z"/><path d="M4.6 10.7H16l2.4 2.6H7Z" opacity=".85"/><path d="M7 15.6h11.4L16 18.2H4.6Z"/>' },
+            'MATIC-30M':     { bg: 'linear-gradient(135deg,#8247e5,#5b2fb0)', svg: '<path d="M12 4l6.9 4v8L12 20l-6.9-4V8Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>' },
+            '超级碗2024':     { bg: 'linear-gradient(135deg,#9a6633,#5c3a1a)', svg: '<ellipse cx="12" cy="12" rx="8.6" ry="5.6" transform="rotate(-28 12 12)" fill="#fff"/><g stroke="#8b5a2b" stroke-width="1.5" fill="none"><path d="M8.6 13.9l6.8-4.6" transform="rotate(0)"/></g><g stroke="#8b5a2b" stroke-width="1.4"><path d="M10.1 12.1l1.2 1.8M12.1 10.7l1.2 1.8M14.1 9.3l1.2 1.8"/></g>' },
+            'NBA决赛':       { bg: 'linear-gradient(135deg,#ff9500,#c25e00)', svg: '<circle cx="12" cy="12" r="8.2" fill="#fff"/><g stroke="#c25e00" stroke-width="1.5" fill="none"><path d="M3.8 12h16.4M12 3.8v16.4M6.1 6.1c3.3 3.3 8.5 3.3 11.8 0M6.1 17.9c3.3-3.3 8.5-3.3 11.8 0"/></g>' },
+            '英伟达[NVIDIA]': { bg: 'linear-gradient(135deg,#76b900,#4e7a00)', svg: '<path d="M12 4.5a7.5 7.5 0 1 0 7.5 7.5h-3.2a4.3 4.3 0 1 1-4.3-4.3Z"/><circle cx="13.8" cy="10.2" r="2.1"/>' },
+            '特斯拉[TSLA]':   { bg: 'linear-gradient(135deg,#E31937,#8a0f22)', svg: '<path d="M12 4.2c4.1 0 7.2 1 8 1.7-.5 1.3-2 2.2-3.8 2.5L12 6.9l-4.2 1.5C6 8.1 4.5 7.2 4 5.9c.8-.7 3.9-1.7 8-1.7Z"/><path d="M10.5 9.7h3l-.4 10-1.1 1.3-1.1-1.3Z"/>' },
+            '长鑫科技':       { bg: 'linear-gradient(135deg,#0a84ff,#0040dd)', svg: '<g stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M9.2 3.6v2M12 3.6v2M14.8 3.6v2M9.2 18.4v2M12 18.4v2M14.8 18.4v2M3.6 9.2h2M3.6 12h2M3.6 14.8h2M18.4 9.2h2M18.4 12h2M18.4 14.8h2"/></g><rect x="6.8" y="6.8" width="10.4" height="10.4" rx="2" fill="#fff"/><rect x="10.2" y="10.2" width="3.6" height="3.6" rx="0.8" fill="#0040dd"/>' },
+            '宇树科技':       { bg: 'linear-gradient(135deg,#ff9f0a,#c25e00)', svg: '<path d="M12 6.8V4.6M10.6 3.4h2.8" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/><rect x="5.4" y="6.8" width="13.2" height="10.4" rx="2.8" fill="#fff"/><circle cx="9.6" cy="12" r="1.5" fill="#c25e00"/><circle cx="14.4" cy="12" r="1.5" fill="#c25e00"/><path d="M9.4 20l1.6-2.6M14.6 20L13 17.4" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/>' },
+            '黄金[XAU]':     { bg: 'linear-gradient(135deg,#d4a017,#8a6800)', svg: '<path d="M8 8.6h8l1.7 3.8h-3.1l-.5-1.2H9.9l-.5 1.2H6.3Z" opacity=".75"/><path d="M5.6 13.9h12.8l1.7 3.9H3.9Z"/>' },
+            '美元':          { bg: 'linear-gradient(135deg,#30d158,#1e8f3e)', ch: '$' },
+            '人民币':        { bg: 'linear-gradient(135deg,#ff453a,#c0261d)', ch: '¥' },
+            'AAPL':          { bg: 'linear-gradient(135deg,#48484a,#1d1d1f)', svg: '<path d="M17.05 12.9c-.03-2.5 2.04-3.7 2.13-3.76-1.16-1.7-2.97-1.93-3.61-1.96-1.54-.16-3 .9-3.78.9-.78 0-1.98-.88-3.26-.86-1.68.03-3.22.98-4.08 2.48-1.74 3.02-.44 7.49 1.25 9.94.83 1.2 1.82 2.55 3.12 2.5 1.25-.05 1.72-.81 3.23-.81 1.5 0 1.93.81 3.25.79 1.34-.03 2.19-1.22 3.01-2.43.95-1.39 1.34-2.74 1.36-2.81-.03-.01-2.6-1-2.62-3.98zM14.6 5.3c.69-.83 1.15-1.99 1.02-3.14-.99.04-2.18.66-2.89 1.49-.63.73-1.19 1.9-1.04 3.03 1.1.09 2.23-.56 2.91-1.38z" transform="translate(0.5,1.5) scale(0.92)"/>' },
+            'MSFT':          { bg: 'linear-gradient(135deg,#f5f6f7,#d9dde1)', dark: true, svg: '<rect x="4.5" y="4.5" width="7" height="7" fill="#f25022"/><rect x="12.5" y="4.5" width="7" height="7" fill="#7fba00"/><rect x="4.5" y="12.5" width="7" height="7" fill="#00a4ef"/><rect x="12.5" y="12.5" width="7" height="7" fill="#ffb900"/>' },
+            'GOOGL':         { bg: 'linear-gradient(135deg,#ea4335,#4285f4)', svg: '<path d="M12 4a8 8 0 1 0 8 8h-4.4a3.6 3.6 0 1 1-3.6-3.6c1 0 1.9.4 2.5 1l2.6-2.6A8 8 0 0 0 12 4Z"/>' },
+            'AMZN':          { bg: 'linear-gradient(135deg,#ff9900,#e47911)', svg: '<text x="12" y="12.3" text-anchor="middle" font-family="Arial,sans-serif" font-size="10.5" font-weight="700" fill="#fff">a</text><path d="M6 14.6c3.4 2.9 8.6 2.9 12 .2" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M18.6 15.4l.5-2.4-2.3 1Z" fill="#fff"/>' },
+            'DOGE-5M':       { bg: 'linear-gradient(135deg,#c2a633,#8a751f)', ch: 'Ð' },
+            'XRP-5M':        { bg: 'linear-gradient(135deg,#4b5563,#1f2937)', svg: '<path d="M5 5.5h3.2L12 9.6l3.8-4.1H19l-5.4 5.9v1.2L19 18.5h-3.2L12 14.4l-3.8 4.1H5l5.4-5.9v-1.2Z"/>' },
+        };
+
+        function tokenIcon(name, size = 24) {
+            const cfg = tokenIcons[name] || { bg: 'linear-gradient(135deg,#8e8e93,#48484a)', ch: (name || '?').charAt(0) };
+            const fs = Math.round(size * 0.48);
+            const inner = cfg.svg
+                ? `<svg viewBox="0 0 24 24" width="${Math.round(size * 0.6)}" height="${Math.round(size * 0.6)}" fill="#fff" style="display:block;">${cfg.svg}</svg>`
+                : `<span style="color:${cfg.dark ? '#1d1d1f' : '#fff'};font-size:${fs}px;font-weight:700;line-height:1;">${cfg.ch}</span>`;
+            const drop = size <= 24 ? '0 1px 2px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.08)' : '0 1px 2px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.10)';
+            return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:${Math.round(size * 0.28)}px;background:${cfg.bg};flex-shrink:0;box-shadow:${drop}, inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 2px rgba(0,0,0,0.14);">${inner}</span>`;
+        }
+
         const aiOrders = [
-            { id: 'ORD-78234', product: '英伟达[NVIDIA]', type: '买入', amount: 3200, price: '$132.45', status: '执行中', time: '2分钟前', pnl: '+$456' },
-            { id: 'ORD-78233', product: 'BTC-5M', type: '卖出', amount: 3000, price: '$77,521.30', status: '已成交', time: '5分钟前', pnl: '+$567' },
-            { id: 'ORD-78232', product: '黄金[XAU]', type: '买入', amount: 1800, price: '$2,345.60', status: '已成交', time: '8分钟前', pnl: '+$312' },
-            { id: 'ORD-78231', product: '特斯拉[TSLA]', type: '买入', amount: 2600, price: '$245.80', status: '执行中', time: '12分钟前', pnl: '+$278' },
-            { id: 'ORD-78230', product: 'ETH-1H', type: '卖出', amount: 4500, price: '$2,417.00', status: '已成交', time: '15分钟前', pnl: '+$890' },
-            { id: 'ORD-78229', product: '宇树科技', type: '买入', amount: 1200, price: '$89.76', status: '已成交', time: '18分钟前', pnl: '+$156' },
-            { id: 'ORD-78228', product: '长鑫科技', type: '卖出', amount: 900, price: '$12.34', status: '执行中', time: '21分钟前', pnl: '+$203' },
-            { id: 'ORD-78227', product: '人民币', type: '买入', amount: 50000, price: '$0.14', status: '已成交', time: '25分钟前', pnl: '+$89' },
-            { id: 'ORD-78226', product: 'SOL-15M', type: '买入', amount: 2000, price: '$145.67', status: '已成交', time: '28分钟前', pnl: '+$123' },
-            { id: 'ORD-78225', product: '美元', type: '卖出', amount: 35000, price: '$1.00', status: '执行中', time: '32分钟前', pnl: '+$45' },
+            { id: 'ORD-78234', product: '英伟达[NVIDIA]', type: '买入', amount: 3200, entry: 130.20, status: '执行中', time: '2分钟前' },
+            { id: 'ORD-78233', product: 'BTC-5M', type: '卖出', amount: 3.2, entry: 76850, status: '已成交', time: '5分钟前' },
+            { id: 'ORD-78232', product: '黄金[XAU]', type: '买入', amount: 18, entry: 2360.00, status: '已成交', time: '8分钟前' },
+            { id: 'ORD-78231', product: '特斯拉[TSLA]', type: '买入', amount: 260, entry: 243.50, status: '执行中', time: '12分钟前' },
+            { id: 'ORD-78230', product: 'ETH-1H', type: '卖出', amount: 12, entry: 2440.00, status: '已成交', time: '15分钟前' },
+            { id: 'ORD-78224', product: 'AAPL', type: '买入', amount: 150, entry: 208.50, status: '执行中', time: '3分钟前' },
+            { id: 'ORD-78223', product: 'MSFT', type: '卖出', amount: 90, entry: 428.00, status: '已成交', time: '6分钟前' },
+            { id: 'ORD-78222', product: 'GOOGL', type: '买入', amount: 120, entry: 172.00, status: '已成交', time: '9分钟前' },
+            { id: 'ORD-78221', product: 'AMZN', type: '买入', amount: 100, entry: 186.00, status: '执行中', time: '11分钟前' },
+            { id: 'ORD-78220', product: 'DOGE-5M', type: '买入', amount: 85000, entry: 0.118, status: '已成交', time: '13分钟前' },
+            { id: 'ORD-78219', product: 'XRP-5M', type: '卖出', amount: 20000, entry: 0.705, status: '执行中', time: '16分钟前' },
+            { id: 'ORD-78218', product: 'MATIC-30M', type: '卖出', amount: 15000, entry: 0.915, status: '已成交', time: '19分钟前' },
+            { id: 'ORD-78229', product: '宇树科技', type: '买入', amount: 800, entry: 87.50, status: '已成交', time: '18分钟前' },
+            { id: 'ORD-78228', product: '长鑫科技', type: '卖出', amount: 1200, entry: 60.20, status: '执行中', time: '21分钟前' },
+            { id: 'ORD-78226', product: 'SOL-15M', type: '买入', amount: 45, entry: 143.20, status: '已成交', time: '28分钟前' },
+            { id: 'ORD-78225', product: '超级碗2024', type: '买入', amount: 5000, entry: 0.68, status: '执行中', time: '32分钟前' },
+            { id: 'ORD-78227', product: '美元', type: '卖出', amount: 35000, entry: 7.16, status: '已成交', time: '25分钟前' },
+            { id: 'ORD-78217', product: '人民币', type: '买入', amount: 50000, entry: 7.15, status: '已成交', time: '38分钟前' },
         ];
+
+
+        // ===== 进化树动态聊天 + 每日变化指标 =====
+        const evolutionIndicators = [
+            { name: 'MA', full: '移动平均线', desc: '价格在MA20上方运行，趋势偏多' },
+            { name: 'MACD', full: '异同移动平均线', desc: 'DIF上穿DEA形成金叉，动能转强' },
+            { name: 'KDJ', full: '随机指标', desc: 'K值上穿D值，短期超买信号' },
+            { name: 'BOLL', full: '布林带', desc: '价格触及上轨，波动率扩张' },
+            { name: 'RSI', full: '相对强弱指标', desc: 'RSI突破70阈值，进入强势区' },
+            { name: 'ATR', full: '真实波幅', desc: '14日ATR升至$2.34，波动放大' },
+            { name: 'VWAP', full: '成交量加权均价', desc: '价格站稳VWAP上方，资金流入' },
+            { name: 'OBV', full: '能量潮', desc: 'OBV持续走高，量价配合良好' },
+            { name: 'DMI', full: '动向指标', desc: '+DI上穿-DI，趋势方向确立' },
+            { name: 'CCI', full: '顺势指标', desc: 'CCI > 100，momentum加速' },
+            { name: 'WR', full: '威廉指标', desc: 'WR突破-20，短期超买' },
+            { name: '斐波那契', full: '斐波那契回撤', desc: '价格回踩0.618后反弹' },
+            { name: '成交量', full: '成交量分析', desc: '成交量较20日均量放大1.8倍' },
+            { name: '支撑阻力', full: '关键位', desc: '前高$67,800形成短期阻力位' },
+            { name: '形态识别', full: 'K线形态', desc: '1H级别形成杯柄突破形态' },
+            { name: '资金流向', full: '资金流指标', desc: '主力资金净流入放大，情绪偏多' },
+            { name: '波动率指数', full: '波动率', desc: '隐含波动率IV升至32%，期权偏斜异常' },
+            { name: '情绪指数', full: '市场情绪', desc: '恐惧贪婪指数升至76，进入贪婪区' },
+            { name: '相关性矩阵', full: '相关性', desc: 'BTC-ETH 30日相关性升至0.91' },
+            { name: '轮动强度', full: '板块轮动', desc: '科技板块相对强度突破前高' }
+        ];
+
+        const evolutionStrategies = [
+            { key: 'trend', name: '趋势突破', color: '#0a84ff', icon: '📈' },
+            { key: 'reversion', name: '均值回归', color: '#30d158', icon: '↔️' },
+            { key: 'momentum', name: '动量策略', color: '#ff9f0a', icon: '🚀' },
+            { key: 'volatility', name: '波动率套利', color: '#bf5af2', icon: '📊' },
+            { key: 'event', name: '事件驱动', color: '#ff453a', icon: '📰' },
+            { key: 'rl', name: 'AI强化学习', color: '#00a8ff', icon: '🤖' },
+            { key: 'cross', name: '跨品种套利', color: '#ff6b35', icon: '🔗' },
+            { key: 'ml', name: '机器学习选股', color: '#5856d6', icon: '🧠' },
+            { key: 'risk', name: '风险平价', color: '#86868b', icon: '🛡️' }
+        ];
+
+        const evolutionStages = ['发现', '验证', '进化', '部署', '淘汰', '合并'];
+        const evolutionSymbols = ['BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 'AMZN', 'META', 'NFLX', 'XAU', 'EURUSD', 'GBPUSD', 'USDJPY'];
+        const evolutionTimeframes = ['1M', '5M', '15M', '1H', '4H', '1D'];
+
+        function evoRand(min, max) { return Math.random() * (max - min) + min; }
+        function evoRandInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function evoPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        const evolutionDialogPool = [
+            // 趋势突破
+            { side: 'big', strategy: 'trend', stage: '发现', text: '{symbol}-{tf} 突破{indicator}轨道，{confidence}%置信度触发趋势信号', model: 'GPT-5分析' },
+            { side: 'big', strategy: 'trend', stage: '验证', text: '{symbol} 回测{count}次，趋势突破策略胜率{winRate}%，夏普{sharpe}', model: 'Claude-4分析' },
+            { side: 'small', strategy: 'trend', stage: '进化', text: '收到，已在{symbol}-{tf}部署趋势跟踪节点，止损设为1.5倍ATR', model: '小龙虾' },
+            { side: 'small', strategy: 'trend', stage: '部署', text: '{symbol} 趋势策略上线，仓位系数0.28，方向看多', model: '小龙虾' },
+            { side: 'system', strategy: 'trend', stage: '淘汰', text: '{symbol} 趋势策略连续{count}次假突破，已回滚参数并降低权重', model: '进化引擎' },
+            // 均值回归
+            { side: 'big', strategy: 'reversion', stage: '发现', text: '{symbol} 偏离MA{ma}达{dev}%，进入均值回归观察区', model: 'Kimi分析' },
+            { side: 'big', strategy: 'reversion', stage: '验证', text: '{symbol}-{tf} 布林带收口+WR超卖，历史反弹概率{winRate}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'reversion', stage: '进化', text: '参数优化完成：入场阈值从2σ收紧到1.6σ，回撤降低{dev}%', model: '小龙虾' },
+            { side: 'small', strategy: 'reversion', stage: '部署', text: '已接住{symbol}超跌仓位，目标位MA20，持有时间<{count}根K线', model: '小龙虾' },
+            { side: 'system', strategy: 'reversion', stage: '合并', text: '均值回归分支与波动率分支合并，新策略编号#{id}', model: '进化引擎' },
+            // 动量策略
+            { side: 'big', strategy: 'momentum', stage: '发现', text: '{symbol} 动量因子{indicator}突破{threshold}，加速度异常', model: 'Claude-4分析' },
+            { side: 'big', strategy: 'momentum', stage: '验证', text: '动量策略在{symbol}-{tf}上近{count}笔交易胜率{winRate}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'momentum', stage: '进化', text: '小龙虾#{id}学习到：动量延续最佳窗口为突破后{count}根K线', model: '小龙虾' },
+            { side: 'small', strategy: 'momentum', stage: '部署', text: '{symbol} 动量仓位已建立，跟踪{indicator}动态止盈', model: '小龙虾' },
+            { side: 'system', strategy: 'momentum', stage: '淘汰', text: '高动量策略在震荡市胜率下滑至{winRate}%，已暂停新增信号', model: '进化引擎' },
+            // 波动率套利
+            { side: 'big', strategy: 'volatility', stage: '发现', text: '{symbol} 隐含波动率IV升至{val}%，期权偏斜出现套利空间', model: 'GPT-5分析' },
+            { side: 'big', strategy: 'volatility', stage: '验证', text: '跨式组合在{symbol}上理论胜率{winRate}%，最大回撤{dev}%', model: 'Claude-4分析' },
+            { side: 'small', strategy: 'volatility', stage: '进化', text: '波动率曲面拟合更新，新增{count}个执行价节点', model: '小龙虾' },
+            { side: 'small', strategy: 'volatility', stage: '部署', text: '已开仓{symbol} 跨式套利，Delta中性，Theta收益为正', model: '小龙虾' },
+            { side: 'system', strategy: 'volatility', stage: '合并', text: '波动率套利与事件驱动合并为“高波动事件”复合策略', model: '进化引擎' },
+            // 事件驱动
+            { side: 'big', strategy: 'event', stage: '发现', text: '监测到{symbol}异常成交量放大{val}倍，疑似事件驱动', model: 'Kimi分析' },
+            { side: 'big', strategy: 'event', stage: '验证', text: '{symbol} 事件窗口期回测：胜率{winRate}%，平均收益{pnl}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'event', stage: '进化', text: '新闻情感打分模型更新，{symbol} 正面情绪得分{val}', model: '小龙虾' },
+            { side: 'small', strategy: 'event', stage: '部署', text: '事件策略#{id}已激活，监控{count}个新闻源与链上地址', model: '小龙虾' },
+            { side: 'system', strategy: 'event', stage: '淘汰', text: '事件策略延迟过高（>{val}ms），已降级为观察模式', model: '进化引擎' },
+            // AI强化学习
+            { side: 'big', strategy: 'rl', stage: '发现', text: 'PPO智能体在{symbol}上发现非线性奖励结构，Q值跃升{val}%', model: 'Claude-4分析' },
+            { side: 'big', strategy: 'rl', stage: '验证', text: 'RL策略回测{count}轮：累计收益{pnl}%，最大回撤{dev}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'rl', stage: '进化', text: '经验回放缓冲区新增{count}条{symbol}高奖励轨迹', model: '小龙虾' },
+            { side: 'small', strategy: 'rl', stage: '部署', text: 'Actor网络在{symbol}-{tf}执行开仓，探索率ε={val}', model: '小龙虾' },
+            { side: 'system', strategy: 'rl', stage: '合并', text: 'RL策略与传统趋势策略融合，混合模型胜率提升{winRate}%', model: '进化引擎' },
+            // 跨品种套利
+            { side: 'big', strategy: 'cross', stage: '发现', text: '{symbolA}-{symbolB} 价差偏离协整关系{dev}个标准差', model: 'GPT-5分析' },
+            { side: 'big', strategy: 'cross', stage: '验证', text: '配对交易回测：交易{count}次，胜率{winRate}%，夏普{sharpe}', model: 'Claude-4分析' },
+            { side: 'small', strategy: 'cross', stage: '进化', text: '协整窗口从60日改为90日，{symbolA}/{symbolB}稳定性提升', model: '小龙虾' },
+            { side: 'small', strategy: 'cross', stage: '部署', text: '已建立{symbolA}多/{symbolB}空对冲仓位，hedge ratio {val}', model: '小龙虾' },
+            { side: 'system', strategy: 'cross', stage: '淘汰', text: '{symbolA}-{symbolB} 相关性跌破0.65，配对关系失效', model: '进化引擎' },
+            // 机器学习选股
+            { side: 'big', strategy: 'ml', stage: '发现', text: 'LightGBM在{count}只标的上训练完成，AUC={val}', model: 'Kimi分析' },
+            { side: 'big', strategy: 'ml', stage: '验证', text: '选股模型Top10组合月收益{pnl}%，相对基准超额{val}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'ml', stage: '进化', text: '特征工程新增{indicator}因子，特征重要性排名前{count}', model: '小龙虾' },
+            { side: 'small', strategy: 'ml', stage: '部署', text: '已生成{symbol}等{count}只标的买入信号，置信度{confidence}%', model: '小龙虾' },
+            { side: 'system', strategy: 'ml', stage: '合并', text: '机器学习选股与动量策略融合为“AI动量选股”分支', model: '进化引擎' },
+            // 风险平价
+            { side: 'big', strategy: 'risk', stage: '发现', text: '组合波动率上升至{val}%，风险预算再平衡触发', model: 'Claude-4分析' },
+            { side: 'big', strategy: 'risk', stage: '验证', text: '风险平价组合夏普{sharpe}，回撤{dev}%，优于等权{val}%', model: 'GPT-5分析' },
+            { side: 'small', strategy: 'risk', stage: '进化', text: '仓位再平衡完成：降低{symbol}权重{dev}%，增配{count}个低相关标的', model: '小龙虾' },
+            { side: 'small', strategy: 'risk', stage: '部署', text: '组合杠杆率调整至{val}x，风险价值VaR控制在{dev}%以内', model: '小龙虾' },
+            { side: 'system', strategy: 'risk', stage: '淘汰', text: '高风险策略权重上限从30%下调至20%，避免尾部暴露', model: '进化引擎' },
+            // 通用系统消息
+            { side: 'system', strategy: 'rl', stage: '进化', text: '策略#{id}在{count}只小龙虾中完成分布式训练', model: '进化引擎' },
+            { side: 'system', strategy: 'trend', stage: '合并', text: '检测到{count}个策略同时看多{symbol}，触发集群共识信号', model: '进化引擎' }
+        ];
+
+        const evolutionState = {
+            totalIterations: 1247,
+            todayCreated: 23,
+            todayEliminated: 7,
+            messages: []
+        };
+
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function getDateSeed() {
+            const d = new Date();
+            return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+        }
+
+        function generateEvolutionMetrics() {
+            const seed = getDateSeed();
+            const baseTotal = 1247 + Math.floor(seededRandom(seed) * 400);
+            const baseCreated = 15 + Math.floor(seededRandom(seed + 1) * 25);
+            const baseEliminated = 3 + Math.floor(seededRandom(seed + 2) * 12);
+            evolutionState.totalIterations = baseTotal;
+            evolutionState.todayCreated = baseCreated;
+            evolutionState.todayEliminated = baseEliminated;
+
+            const els = {
+                total: document.getElementById('evo-total-iter'),
+                created: document.getElementById('evo-today-created'),
+                eliminated: document.getElementById('evo-today-eliminated'),
+                cardTotal: document.getElementById('evo-card-total'),
+                cardCreated: document.getElementById('evo-card-created'),
+                cardEliminated: document.getElementById('evo-card-eliminated')
+            };
+            if (els.total) els.total.textContent = baseTotal.toLocaleString();
+            if (els.created) els.created.textContent = '+' + baseCreated + ' 今日';
+            if (els.eliminated) els.eliminated.textContent = '-' + baseEliminated + ' 今日';
+            if (els.cardTotal) els.cardTotal.textContent = baseTotal.toLocaleString();
+            if (els.cardCreated) els.cardCreated.textContent = baseCreated;
+            if (els.cardEliminated) els.cardEliminated.textContent = baseEliminated;
+        }
+
+        function formatEvolutionText(tpl) {
+            const strategy = evolutionStrategies.find(s => s.key === tpl.strategy) || evolutionStrategies[0];
+            const stage = tpl.stage || '验证';
+            const symbol = evoPick(evolutionSymbols);
+            const symbolB = evoPick(evolutionSymbols.filter(s => s !== symbol));
+            const tf = evoPick(evolutionTimeframes);
+            const indicator = evoPick(evolutionIndicators).name;
+            const confidence = evoRandInt(62, 97);
+            const winRate = evoRandInt(48, 91);
+            const pnl = evoRand(1.2, 18.5).toFixed(1);
+            const sharpe = evoRand(0.8, 3.2).toFixed(2);
+            const dev = evoRand(1.5, 8.5).toFixed(1);
+            const val = evoRandInt(10, 320);
+            const count = evoRandInt(3, 48);
+            const threshold = evoRandInt(20, 90);
+            const ma = [10, 20, 50, 120, 200][evoRandInt(0, 4)];
+            const id = evoRandInt(100, 999);
+            const tokens = 600 + Math.floor(Math.random() * 3500);
+            const text = tpl.text
+                .replace(/\{symbol\}/g, symbol)
+                .replace(/\{symbolA\}/g, symbol)
+                .replace(/\{symbolB\}/g, symbolB)
+                .replace(/\{tf\}/g, tf)
+                .replace(/\{indicator\}/g, indicator)
+                .replace(/\{confidence\}/g, confidence)
+                .replace(/\{winRate\}/g, winRate)
+                .replace(/\{pnl\}/g, pnl)
+                .replace(/\{sharpe\}/g, sharpe)
+                .replace(/\{dev\}/g, dev)
+                .replace(/\{val\}/g, val)
+                .replace(/\{count\}/g, count)
+                .replace(/\{threshold\}/g, threshold)
+                .replace(/\{ma\}/g, ma)
+                .replace(/\{id\}/g, id);
+            return { text, strategy, stage, confidence, winRate, tokens };
+        }
+
+        function makeEvolutionMessage(baseTs) {
+            const tpl = evoPick(evolutionDialogPool);
+            const t = new Date(baseTs || Date.now());
+            const timeStr = t.toLocaleTimeString('zh-CN', { hour12: false });
+            const meta = formatEvolutionText(tpl);
+            let model = tpl.model;
+            if (tpl.side === 'small' && !model.startsWith('小龙虾')) {
+                const lobsterNum = Math.floor(Math.random() * 500 + 1).toString().padStart(3, '0');
+                model = '小龙虾 #' + lobsterNum;
+            }
+            return {
+                side: tpl.side,
+                text: meta.text,
+                model: model,
+                strategy: meta.strategy,
+                stage: meta.stage,
+                confidence: meta.confidence,
+                winRate: meta.winRate,
+                time: timeStr,
+                tokens: meta.tokens
+            };
+        }
+
+        function renderEvolutionDialog() {
+            const container = document.getElementById('evolution-dialog-container');
+            if (!container) return;
+            container.innerHTML = evolutionState.messages.map(m => {
+                const isBig = m.side === 'big';
+                const isSystem = m.side === 'system';
+                const bubbleCls = isSystem ? 'evolution-system-bubble' : (isBig ? 'dialog-big' : 'dialog-small');
+                const sender = isSystem ? '🌳 进化引擎' : (isBig ? '🦞 大龙虾' : ('🦞 ' + (m.model || '小龙虾')));
+                const badgeStyle = `background: ${m.strategy.color}22; color: ${m.strategy.color}; border: 1px solid ${m.strategy.color}44`;
+                const stageStyle = `background: rgba(0,0,0,0.05); color: #555; border: 1px solid rgba(0,0,0,0.08)`;
+                const metaLine = isSystem
+                    ? `${m.time} • ${m.model}`
+                    : `${m.time} • ${m.model} • ${m.tokens.toLocaleString()} tokens`;
+                return `<div class="dialog-bubble ${bubbleCls}">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold">${sender}</span>
+                        <span class="text-[0.65rem] px-1.5 py-0.5 rounded" style="${badgeStyle}">${m.strategy.icon} ${m.strategy.name}</span>
+                        <span class="text-[0.65rem] px-1.5 py-0.5 rounded" style="${stageStyle}">${m.stage}</span>
+                        ${isSystem ? '' : `<span class="text-[0.65rem] text-gray-500">${m.confidence}%置信 ${m.winRate}%胜率</span>`}
+                    </div>
+                    <div>${m.text}</div>
+                    <div class="text-xs text-gray-600 mt-1">${metaLine}</div>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function initEvolutionDialog() {
+            const now = new Date();
+            const baseTime = now.getTime() - 5 * 60000;
+            evolutionState.messages = [];
+            learningLog.length = 0;
+            for (let i = 0; i < 6; i++) {
+                const msg = makeEvolutionMessage(baseTime + i * 45000);
+                evolutionState.messages.push(msg);
+                learningLog.unshift({ time: msg.time, message: '🦞 ' + (msg.side === 'big' ? '大龙虾' : (msg.side === 'system' ? '进化引擎' : msg.model)) + ': ' + msg.text });
+            }
+            renderEvolutionDialog();
+            renderLearningLog();
+        }
+
+        function tickEvolutionDialog() {
+            const msg = makeEvolutionMessage();
+            evolutionState.messages.push(msg);
+            if (evolutionState.messages.length > 20) evolutionState.messages.shift();
+            renderEvolutionDialog();
+            learningLog.unshift({ time: msg.time, message: '🦞 ' + (msg.side === 'big' ? '大龙虾' : (msg.side === 'system' ? '进化引擎' : msg.model)) + ': ' + msg.text });
+            if (learningLog.length > 10) learningLog.pop();
+            renderLearningLog();
+        }
 
         const tokenUsage = [
-            { model: 'GPT-5.6 Sol', action: '市场分析', tokens: '2,456', cost: '$0.89', lobster: '大龙虾', time: '14:23:45' },
-            { model: 'Claude Opus 5', action: '风险评估', tokens: '1,234', cost: '$0.45', lobster: '小龙虾 #042', time: '14:23:42' },
-            { model: 'Kimi K3', action: '代码分析', tokens: '892', cost: '$0.18', lobster: '小龙虾 #156', time: '14:23:38' },
-            { model: 'GPT-5.6 Sol', action: '策略优化', tokens: '3,678', cost: '$1.34', lobster: '大龙虾', time: '14:23:30' },
-            { model: 'Claude Opus 5', action: '回测', tokens: '2,123', cost: '$0.78', lobster: '小龙虾 #089', time: '14:23:15' },
-            { model: 'Kimi K3', action: '数据分析', tokens: '1,567', cost: '$0.31', lobster: '小龙虾 #234', time: '14:22:45' },
+            { model: 'GPT-5.6 Sol', action: '市场分析', tokens: 2456, rate: 0.000362, lobster: '大龙虾', time: '14:23:45' },
+            { model: 'Claude Opus 5', action: '风险评估', tokens: 1234, rate: 0.000365, lobster: '小龙虾 #042', time: '14:23:42' },
+            { model: 'Kimi K3', action: '代码分析', tokens: 892, rate: 0.000200, lobster: '小龙虾 #156', time: '14:23:38' },
+            { model: 'GPT-5.6 Sol', action: '策略优化', tokens: 3678, rate: 0.000364, lobster: '大龙虾', time: '14:23:30' },
+            { model: 'Claude Opus 5', action: '回测', tokens: 2123, rate: 0.000367, lobster: '小龙虾 #089', time: '14:23:15' },
+            { model: 'Kimi K3', action: '数据分析', tokens: 1567, rate: 0.000198, lobster: '小龙虾 #234', time: '14:22:45' },
         ];
 
-        const learningLog = [
+        let learningLog = [
             { time: '14:23:45', message: '🦞 大龙虾: BTC在$67K显示突破形态，波动率上升' },
             { time: '14:23:42', message: '🦞 小龙虾 #042: 确认，我的分析中检测到类似形态' },
             { time: '14:23:38', message: '🦞 大龙虾: 以82%置信度阈值执行分析' },
@@ -1591,8 +1953,14 @@
             { market: 'ETH-1H', price: 2417.00, sizeMin: 1000, sizeMax: 8000, pnlMin: 30, pnlMax: 900 },
             { market: 'SOL-15M', price: 145.67, sizeMin: 800, sizeMax: 5000, pnlMin: 20, pnlMax: 350 },
             { market: 'MATIC-30M', price: 0.89, sizeMin: 500, sizeMax: 3000, pnlMin: 10, pnlMax: 120 },
+            { market: 'DOGE-5M', price: 0.118, sizeMin: 600, sizeMax: 3500, pnlMin: 15, pnlMax: 180 },
+            { market: 'XRP-5M', price: 0.705, sizeMin: 700, sizeMax: 4000, pnlMin: 15, pnlMax: 200 },
             { market: '英伟达[NVIDIA]', price: 120.45, sizeMin: 1000, sizeMax: 6000, pnlMin: 25, pnlMax: 600 },
             { market: '特斯拉[TSLA]', price: 245.80, sizeMin: 1200, sizeMax: 7000, pnlMin: 30, pnlMax: 800 },
+            { market: 'AAPL', price: 208.50, sizeMin: 1000, sizeMax: 5500, pnlMin: 20, pnlMax: 500 },
+            { market: 'MSFT', price: 428.00, sizeMin: 1200, sizeMax: 6500, pnlMin: 25, pnlMax: 650 },
+            { market: 'GOOGL', price: 172.00, sizeMin: 1000, sizeMax: 5000, pnlMin: 20, pnlMax: 480 },
+            { market: 'AMZN', price: 186.00, sizeMin: 1100, sizeMax: 6000, pnlMin: 25, pnlMax: 550 },
             { market: '长鑫科技', price: 12.34, sizeMin: 800, sizeMax: 4500, pnlMin: 15, pnlMax: 250 },
             { market: '宇树科技', price: 89.76, sizeMin: 900, sizeMax: 5000, pnlMin: 20, pnlMax: 400 },
             { market: '黄金[XAU]', price: 2345.60, sizeMin: 1500, sizeMax: 9000, pnlMin: 40, pnlMax: 1100 },
@@ -1611,9 +1979,8 @@
             const side = orderSides[Math.floor(Math.random() * orderSides.length)];
             const status = i < 18 ? orderStatuses[i % orderStatuses.length] : orderStatuses[Math.floor(Math.random() * orderStatuses.length)];
             const lobster = orderLobsters[Math.floor(Math.random() * orderLobsters.length)];
-            const size = Math.floor(prod.sizeMin + Math.random() * (prod.sizeMax - prod.sizeMin));
-            const price = (prod.price * (0.95 + Math.random() * 0.1)).toFixed(prod.price < 10 ? 4 : 2);
-            const pnl = status === '已取消' ? '$0' : ('+$' + Math.floor(prod.pnlMin + Math.random() * (prod.pnlMax - prod.pnlMin)).toLocaleString());
+            const sizeNum = Math.floor(prod.sizeMin + Math.random() * (prod.sizeMax - prod.sizeMin));
+            const entry = prod.price * (0.95 + Math.random() * 0.1);
             const totalSeconds = 14 * 3600 + 23 * 60 + 45 - i * 70;
             const hour = Math.floor(totalSeconds / 3600) % 24;
             const min = Math.floor((totalSeconds % 3600) / 60);
@@ -1621,16 +1988,26 @@
             const time = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
             return {
                 id: `ORD-${id}`, lobster, market: prod.market, side,
-                size: '$' + size.toLocaleString(), price: '$' + price,
-                status, time, pnl
+                sizeNum, size: '$' + sizeNum.toLocaleString(),
+                entry: parseFloat(entry.toFixed(prod.price < 10 ? 4 : 2)),
+                status, time
             };
         });
 
         const positions = [
-            { product: 'BTC-5M', side: '多头', size: '$45,678', entry: '$76,200.00', current: '$77,521.30', pnl: '+$1,321', pnlPct: '+1.73%', lobster: '大龙虾' },
-            { product: 'ETH-1H', side: '空头', size: '$23,456', entry: '$2,447.00', current: '$2,417.00', pnl: '+$30', pnlPct: '+1.23%', lobster: '小龙虾 #042' },
-            { product: 'SOL-15M', side: '多头', size: '$12,345', entry: '$142.00', current: '$145.67', pnl: '+$319', pnlPct: '+2.58%', lobster: '小龙虾 #156' },
-            { product: '超级碗2024', side: '多头', size: '$89,000', entry: '$0.68', current: '$0.72', pnl: '+$5,235', pnlPct: '+5.88%', lobster: '大龙虾' },
+            { product: 'BTC-5M', side: '多头', size: 45678, entry: 76200.00, base: 77521.30, lobster: '大龙虾' },
+            { product: 'ETH-1H', side: '空头', size: 23456, entry: 2447.00, base: 2417.00, lobster: '小龙虾 #042' },
+            { product: 'SOL-15M', side: '多头', size: 12345, entry: 142.00, base: 145.67, lobster: '小龙虾 #156' },
+            { product: '英伟达[NVIDIA]', side: '多头', size: 32000, entry: 125.00, base: 132.45, lobster: '小龙虾 #001' },
+            { product: '特斯拉[TSLA]', side: '空头', size: 22000, entry: 240.00, base: 245.80, lobster: '小龙虾 #013' },
+            { product: 'AAPL', side: '多头', size: 18000, entry: 210.00, base: 222.50, lobster: '小龙虾 #021' },
+            { product: 'MSFT', side: '多头', size: 16000, entry: 410.00, base: 455.30, lobster: '小龙虾 #034' },
+            { product: 'GOOGL', side: '多头', size: 15000, entry: 165.00, base: 176.80, lobster: '小龙虾 #089' },
+            { product: 'AMZN', side: '多头', size: 14000, entry: 188.00, base: 202.40, lobster: '小龙虾 #112' },
+            { product: 'MATIC-30M', side: '空头', size: 9800, entry: 0.92, base: 0.89, lobster: '小龙虾 #198' },
+            { product: 'DOGE-5M', side: '多头', size: 8500, entry: 0.105, base: 0.128, lobster: '小龙虾 #045' },
+            { product: 'XRP-5M', side: '空头', size: 11200, entry: 0.72, base: 0.68, lobster: '小龙虾 #067' },
+            { product: '超级碗2024', side: '多头', size: 89000, entry: 0.68, base: 0.72, lobster: '大龙虾' },
         ];
 
         const lobsterArmy = [];
@@ -1649,11 +2026,11 @@
         }
 
         const levelPyramid = [
-            { level: 'legend', name: '传说', count: 12, color: '#ff453a', profit: '$2.1M' },
-            { level: 'master', name: '大师', count: 48, color: '#bf5af2', profit: '$1.8M' },
-            { level: 'expert', name: '专家', count: 127, color: '#ff9f0a', profit: '$1.2M' },
-            { level: 'elite', name: '精英', count: 198, color: '#30d158', profit: '$420K' },
-            { level: 'novice', name: '新手', count: 115, color: '#86868b', profit: '$150K' },
+            { level: 'legend', name: '超级智能（传说）', count: 12, color: '#ff453a', profit: '$2.1M', icon: '🚀' },
+            { level: 'master', name: '自主执行（大师）', count: 48, color: '#bf5af2', profit: '$1.8M', icon: '🤖' },
+            { level: 'expert', name: '推理规划（专家）', count: 127, color: '#ff9f0a', profit: '$1.2M', icon: '⚡' },
+            { level: 'elite', name: '感知决策（精英）', count: 198, color: '#30d158', profit: '$420K', icon: '👁' },
+            { level: 'novice', name: '本能反应（新手）', count: 115, color: '#86868b', profit: '$150K', icon: '🧠' },
         ];
 
         const todayProfitData = [
@@ -1663,6 +2040,68 @@
             { id: 234, trades: 18, winRate: 66.7, profit: 8456, best: 'BTC-5M 多' },
             { id: 67, trades: 15, winRate: 80.0, profit: 7234, best: 'MATIC-30M 多' },
         ];
+
+        // 仪表盘资产状态（单一数据源，所有面板数字按此自动计算）
+        const dashboardState = {
+            total: 3358392.84,
+            availableRatio: 0.26565,   // 可用余额 / 总资产
+            feeRatio: 0.00741,         // 手续费收益 / 总资产
+            dailyReturnRatio: 0.01360, // 今日盈亏 / 总资产
+            positionsRatio: 0.71334    // 持仓中 / 总资产 = 1 - 其余三项，保证四格相加 = 总资产
+        };
+        // 校验：0.26565 + 0.00741 + 0.01360 + 0.71334 = 1.00000
+        // 逻辑：总资产 = 可用余额 + 持仓中 + 手续费收益 + 今日盈亏（四格严格瓜分，随波动联动）
+
+        function formatCurrency(n) {
+            return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatPrice(price) {
+            if (price >= 1000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (price >= 1) return price.toFixed(2);
+            return price.toFixed(4);
+        }
+
+        function renderDashboard() {
+            const total = dashboardState.total;
+            const available = total * dashboardState.availableRatio;
+            const positionsValue = total * dashboardState.positionsRatio; // 四格相加 = 总资产
+            const feeIncome = total * dashboardState.feeRatio;
+            const pnl = total * dashboardState.dailyReturnRatio;
+
+            const totalEl = document.getElementById('total-assets');
+            if (totalEl) totalEl.textContent = formatCurrency(total);
+
+            const availableEl = document.getElementById('available-balance');
+            if (availableEl) availableEl.textContent = formatCurrency(available);
+
+            const positionsEl = document.getElementById('in-positions');
+            if (positionsEl) positionsEl.textContent = formatCurrency(positionsValue);
+
+            const feeEl = document.getElementById('fee-income');
+            if (feeEl) feeEl.textContent = formatCurrency(feeIncome);
+
+            const pnlEl = document.getElementById('pnl-today');
+            if (pnlEl) pnlEl.textContent = '+' + formatCurrency(pnl);
+
+            const availableRatioEl = document.getElementById('available-ratio');
+            if (availableRatioEl) availableRatioEl.textContent = (dashboardState.availableRatio * 100).toFixed(1);
+
+            const positionsRatioEl = document.getElementById('positions-ratio');
+            if (positionsRatioEl) positionsRatioEl.textContent = (dashboardState.positionsRatio * 100).toFixed(1);
+
+            const pnlRatioEl = document.getElementById('pnl-ratio');
+            if (pnlRatioEl) pnlRatioEl.textContent = (dashboardState.dailyReturnRatio * 100).toFixed(2);
+
+            const availableModalEl = document.getElementById('available-balance-modal-value');
+            if (availableModalEl) availableModalEl.textContent = formatCurrency(available);
+
+            const positionsModalEl = document.getElementById('in-positions-modal-value');
+            // 弹窗副标题由 renderPositions() 根据实际持仓表计算并维护
+
+            const pnlModalEl = document.getElementById('pnl-today-modal-value');
+            if (pnlModalEl) pnlModalEl.textContent = '+' + formatCurrency(pnl) + ' (+' + (dashboardState.dailyReturnRatio * 100).toFixed(2) + '%)';
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             selectedWallet = 'metamask';
@@ -1683,6 +2122,20 @@
             renderMarketData();
             fetchBackendPrices();
             initCharts();
+            renderDashboard();
+            renderTokenDashboard();
+            renderTokenUsageModal();
+            renderLearningDashboard();
+            renderUniversity();
+            initLearningInterface('aiDev', 'ai-dev-interface', 6);
+            initLearningInterface('bigLobster', 'big-lobster-learning-interface', 6);
+            initLearningInterface('army', 'lobster-army-learning-interface', 6);
+            initLearningInterface('winRate', 'win-rate-interface', 6);
+            initLearningInterface('modelEvolution', 'model-evolution-interface', 6);
+            initLearningInterface('strategyEvolution', 'strategy-evolution-interface', 6);
+            initLearningInterface('riskManagement', 'risk-management-interface', 6);
+            generateEvolutionMetrics();
+            initEvolutionDialog();
             startRealTimeUpdates();
         });
 
@@ -1737,19 +2190,446 @@
             } else {
                 filtered = products.filter(p => p.category === currentProductFilter);
             }
-            grid.innerHTML = filtered.map(p => `<div class="card p-3 cursor-pointer" onclick="openProductDetail('${p.name}')"><div class="flex items-center gap-2 mb-2"><span class="text-lg">${p.icon}</span><span class="font-semibold text-sm">${p.name}</span></div><div class="text-2xl font-bold text-apple-blue">${p.prob}%</div><div class="text-xs text-gray-600">${p.vol}</div></div>`).join('');
+            grid.innerHTML = filtered.map(p => `<div class="card p-3 cursor-pointer" onclick="openProductDetail('${p.name}')"><div class="flex items-center gap-2 mb-2">${tokenIcon(p.name)}<span class="font-semibold text-sm">${p.name}</span></div><div class="text-2xl font-bold text-apple-blue">${p.prob}%</div><div class="text-xs text-gray-600">${p.vol}</div></div>`).join('');
         }
 
         function renderAIOrders() {
             const container = document.getElementById('ai-orders');
             if (!container) return;
-            container.innerHTML = aiOrders.slice(0, 3).map(o => `<div class="order-card" onclick="openOrderDetail('${o.id}')"><div class="flex justify-between items-center"><div><div class="font-semibold text-sm">${o.product}</div><div class="text-xs text-gray-600">${o.type} ${o.amount.toLocaleString()} @ ${o.price}</div></div><div class="text-right"><div class="text-xs ${o.status === '执行中' ? 'text-apple-purple' : 'text-apple-green'}">${o.status}</div><div class="text-xs text-apple-green">${o.pnl}</div></div></div></div>`).join('');
+            const perView = 3;
+            const groups = Math.ceil(aiOrders.length / perView);
+            const start = Math.floor(Date.now() / 8000) % groups * perView; // 每8秒轮换一批
+            const view = [];
+            for (let i = 0; i < perView; i++) view.push(aiOrders[(start + i) % aiOrders.length]);
+            container.innerHTML = view.map(o => {
+                const price = marketPrices[o.product] != null ? marketPrices[o.product] : (marketBasePrices[o.product] != null ? marketBasePrices[o.product] : o.entry);
+                const dir = o.type === '买入' ? 1 : -1;
+                const pnl = (price - o.entry) * o.amount * dir;
+                const pnlTxt = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toLocaleString('en-US', { maximumFractionDigits: 0 });
+                const pnlCls = pnl >= 0 ? 'text-apple-green' : 'text-red-500';
+                return `<div class="order-card" onclick="openOrderDetail('${o.id}')"><div class="flex justify-between items-center"><div><div class="font-semibold text-sm">${o.product}</div><div class="text-xs text-gray-600">${o.type} ${o.amount.toLocaleString('en-US')} @ ${formatPrice(price)}</div></div><div class="text-right"><div class="text-xs ${o.status === '执行中' ? 'text-apple-purple' : 'text-apple-green'}">${o.status}</div><div class="text-xs ${pnlCls}">${pnlTxt}</div></div></div></div>`;
+            }).join('');
+        }
+
+        // ===== Mars AI 进化学院动态课程与技术指标学习流 =====
+        const technicalIndicatorTopics = [
+            { abbr: 'MA', name: '移动平均线', actions: ['价格站稳MA20上方，趋势偏多', 'MA5上穿MA20形成金叉', '价格回踩MA60后反弹'] },
+            { abbr: 'MACD', name: '异同移动平均线', actions: ['DIF上穿DEA形成金叉', 'MACD柱状体由负转正', '零轴上方二次金叉'] },
+            { abbr: 'KDJ', name: '随机指标', actions: ['K值上穿D值，短线转强', 'J值触底反弹至20上方', 'KDJ在超卖区形成金叉'] },
+            { abbr: 'BOLL', name: '布林带', actions: ['价格触及上轨，波动率扩张', 'BOLL中轨形成动态支撑', '收口后放量突破上轨'] },
+            { abbr: 'RSI', name: '相对强弱指标', actions: ['RSI突破70进入强势区', 'RSI回踩50后重新上行', '底背离信号触发'] },
+            { abbr: 'ATR', name: '真实波幅', actions: ['14日ATR升至$2.34', '波动率放大至15.2%', 'ATR倍数止损设为2x'] },
+            { abbr: 'VWAP', name: '成交量加权均价', actions: ['价格站稳VWAP上方', '机构资金持续流入', 'VWAP偏离率回归'] },
+            { abbr: 'OBV', name: '能量潮', actions: ['OBV与价格同步新高', '量价配合良好', 'OBV底背离确认'] },
+            { abbr: 'DMI', name: '动向指标', actions: ['+DI上穿-DI趋势确立', 'ADX升至40确认强趋势', '多头动能占优'] },
+            { abbr: 'CCI', name: '顺势指标', actions: ['CCI上穿+100加速', 'CCI回踩-100反弹', '极端区间反转信号'] },
+            { abbr: 'WR', name: '威廉指标', actions: ['WR跌破-80超跌', 'WR上穿-20进入强势', '底部钝化后反弹'] },
+            { abbr: '斐波那契', name: '斐波那契回撤', actions: ['价格回踩0.618后反弹', '0.5回撤位形成支撑', '突破1.618扩展位'] },
+            { abbr: '成交量', name: '成交量分析', actions: ['成交量较20日均量放大1.8倍', '放量突破关键阻力', '缩量回调确认支撑'] },
+            { abbr: '支撑阻力', name: '关键位分析', actions: ['前高$67,800形成短期阻力', '前低点形成有效支撑', '突破后阻力变支撑'] },
+            { abbr: '形态识别', name: 'K线形态', actions: ['1H级别杯柄突破', 'W底颈线位突破', '头肩顶形态形成'] },
+            { abbr: '波动率', name: '波动率分析', actions: ['HV升至18.5%趋势加速', 'IV/HV比值回落', '波动率曲面右偏'] },
+            { abbr: '情绪指标', name: '市场情绪', actions: ['恐慌指数回落至中性', '多空比升至1.8', '贪婪指数过热'] },
+            { abbr: '资金流', name: '资金流向', actions: ['主力资金净流入$45M', '散户资金持续离场', '北向资金加仓'] },
+            { abbr: '相关性', name: '资产相关性', actions: ['BTC-SP500相关性升至0.65', '黄金-美元负相关增强', '板块轮动加速'] },
+            { abbr: '轮动', name: '板块轮动', actions: ['科技板块动能切换至金融', '小盘股相对强势', '成长股轮动完成'] },
+            { abbr: 'Transformer', name: 'Transformer架构', actions: ['自注意力机制捕捉长程依赖', '多头注意力并行计算', '位置编码注入序列信息'] },
+            { abbr: 'LLM', name: '大语言模型', actions: ['预训练权重初始化完成', 'SFT指令微调收敛', 'RLHF人类反馈对齐'] },
+            { abbr: 'MoE', name: '专家混合模型', actions: ['门控网络路由至Top-2专家', '专家负载均衡损失下降', '稀疏激活节省算力'] },
+            { abbr: 'RAG', name: '检索增强生成', actions: ['向量库召回Top-K片段', '重排序模型提升相关性', '检索上下文注入Prompt'] },
+            { abbr: 'Agent', name: '智能体', actions: ['工具调用链执行下单', '多Agent协作完成风控', '反思链自我修正决策'] },
+            { abbr: 'GPU', name: 'GPU算力集群', actions: ['A100/H100混合调度', 'NVLink全Reduce通信', '显存碎片化整理'] },
+            { abbr: 'FP8', name: 'FP8量化训练', actions: ['权重梯度FP8混合精度', '动态缩放因子稳定', '吞吐提升1.8x'] },
+            { abbr: '推理时Scaling', name: '推理时Scaling', actions: ['增加推理步数提升准确率', 'Self-Consistency投票', '思维链深度搜索'] },
+            { abbr: '多模态', name: '多模态融合', actions: ['图文编码器对齐', '时序与文本联合建模', '跨模态注意力融合'] },
+            { abbr: '世界模型', name: '世界模型', actions: ['模拟市场环境演化', '预测多步价格状态', '反事实推理评估策略'] },
+            { abbr: '具身智能', name: '具身智能', actions: ['Agent与环境交互执行交易', '感知-决策-行动闭环', '模拟交易所中自主试错'] },
+            { abbr: 'Mamba', name: '状态空间模型', actions: ['线性复杂度处理长序列', '状态选择性扫描机制', '替代注意力降低显存占用'] },
+            { abbr: 'JEPA', name: '联合嵌入预测架构', actions: ['学习抽象世界表征', '预测潜在空间状态', '非生成式世界模型'] },
+            { abbr: 'Diffusion', name: '扩散模型', actions: ['生成合成K线数据', '去噪过程学习分布', '数据增强提升泛化'] },
+            { abbr: '神经符号', name: '神经符号AI', actions: ['神经网络感知+符号规则推理', '可解释交易决策', '规则库与模型联合训练'] },
+            { abbr: 'Test-time', name: 'Test-time Compute', actions: ['测试时增加计算预算', '推理阶段搜索最优解', 'Self-Improvement迭代'] },
+            { abbr: 'Long Context', name: '长上下文建模', actions: ['扩展上下文窗口至1M tokens', '长程依赖捕捉', '位置编码外推'] },
+            { abbr: 'Function Calling', name: '函数调用', actions: ['模型输出结构化工具调用', 'JSON Schema约束', '多步工具链执行'] },
+            { abbr: 'Embedding', name: '嵌入表征', actions: ['高维向量压缩语义', '向量检索相似行情', 'Embedding聚类识别 regime'] },
+            { abbr: '数据合成', name: '合成数据', actions: ['生成高质量指令样本', '领域特化数据增强', '隐私 preserving 训练数据'] },
+            { abbr: 'RL', name: '强化学习', actions: ['PPO策略梯度优化', 'DPO直接偏好对齐', '环境奖励塑造'] },
+            { abbr: '联邦学习', name: '联邦学习', actions: ['分布式节点联合训练', '差分隐私保护', '模型聚合而非数据聚合'] },
+            { abbr: '因果推断', name: '因果推断', actions: ['识别真实市场驱动因子', '去除虚假相关', '反事实策略评估'] },
+            { abbr: 'AI Infra', name: 'AI基础设施', actions: ['H100集群网络拓扑优化', '训练框架零冗余优化', '推理服务批处理调度'] }
+        ];
+
+        const universityState = {
+            bigLobster: { progress: 87, sessions: 234, nodes: 1456 },
+            army: { progress: 72, shares: 1892, learners: 487 },
+            modelEvolution: { progress: 65, iterations: 1247, new: 23, eliminated: 7 },
+            winRate: { progress: 78, current: 72.5, target: 85.0, boost: 12.5 },
+            strategyEvolution: { progress: 82, count: 45, optimizations: 23 },
+            recent: { risk: 100, arbitrage: 67, aiDev: 12 },
+            aiDev: { models: 1, params: 8, compute: 1240, dataset: 2.4, accuracy: 78.4, gpu: 87, latency: 23, loss: -12.5, throughput: 4820, chain: 12 },
+            modelPerformance: { gpt: 94, claude: 91, kimi: 89, local: 85 }
+        };
+
+        function randBetween(min, max) { return Math.random() * (max - min) + min; }
+        function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
+
+        function setBar(barId, textId, percent) {
+            const bar = document.getElementById(barId);
+            if (bar) { bar.style.transition = 'width 1.2s ease'; bar.style.width = percent + '%'; }
+            const text = document.getElementById(textId);
+            if (text) { text.textContent = Math.round(percent) + '% 完成'; }
+        }
+        function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+        function setCls(id, cls) { const el = document.getElementById(id); if (el) el.className = cls; }
+
+        function renderUniversity() {
+            const s = universityState;
+            // 首页预览卡片
+            setBar('home-big-lobster-progress-bar', 'home-big-lobster-progress-text', s.bigLobster.progress);
+            setText('home-big-lobster-sessions', s.bigLobster.sessions.toLocaleString() + ' 会话');
+            setBar('home-army-progress-bar', 'home-army-progress-text', s.army.progress);
+            setText('home-army-shares', s.army.shares.toLocaleString() + ' 分享');
+            setBar('home-model-evolution-progress-bar', 'home-model-evolution-progress-text', s.modelEvolution.progress);
+            setText('home-model-evolution-version', 'v2.4.7 → v2.4.8');
+            setBar('home-win-rate-progress-bar', 'home-win-rate-progress-text', s.winRate.progress);
+            setText('home-win-rate-boost', '+' + s.winRate.boost.toFixed(1) + '% 提升');
+
+            // 大学弹窗
+            setBar('univ-big-lobster-bar', 'univ-big-lobster-text', s.bigLobster.progress);
+            setText('univ-big-lobster-sessions', s.bigLobster.sessions.toLocaleString() + ' 会话');
+            setBar('univ-army-bar', 'univ-army-text', s.army.progress);
+            setText('univ-army-shares', s.army.shares.toLocaleString() + ' 分享');
+            setBar('univ-model-bar', 'univ-model-text', s.modelEvolution.progress);
+            setText('univ-model-iterations', s.modelEvolution.iterations.toLocaleString() + ' 迭代');
+            setBar('univ-win-rate-bar', 'univ-win-rate-text', s.winRate.progress);
+            setText('univ-win-rate-boost', '+' + s.winRate.boost.toFixed(1) + '% 提升');
+            setBar('univ-strategy-bar', 'univ-strategy-text', s.strategyEvolution.progress);
+            setText('univ-strategy-count', s.strategyEvolution.count + ' 策略');
+
+            // 最近学习
+            setText('univ-recent-risk', '已完成');
+            setText('univ-recent-arb', s.recent.arbitrage >= 100 ? '已完成' : '进行中');
+            setText('univ-recent-ai', s.recent.aiDev >= 100 ? '已完成' : (s.recent.aiDev > 0 ? '进行中' : '待开始'));
+            setCls('univ-recent-risk', 'text-apple-green');
+            setCls('univ-recent-arb', s.recent.arbitrage >= 100 ? 'text-apple-green' : 'text-apple-orange');
+            setCls('univ-recent-ai', s.recent.aiDev >= 100 ? 'text-apple-green' : (s.recent.aiDev > 0 ? 'text-apple-orange' : 'text-gray-600'));
+
+            // 学习进度
+            setBar('univ-progress-risk-bar', 'univ-progress-risk-text', s.recent.risk);
+            setBar('univ-progress-arb-bar', 'univ-progress-arb-text', s.recent.arbitrage);
+            setBar('univ-progress-ai-bar', 'univ-progress-ai-text', s.recent.aiDev);
+
+            // AI策略开发 首页预览卡片
+            setBar('home-ai-dev-progress-bar', 'home-ai-dev-progress-text', s.recent.aiDev);
+            setText('home-ai-dev-models', s.aiDev.models + ' 模型');
+
+            // 模型性能
+            setText('univ-perf-gpt', s.modelPerformance.gpt + '% 准确率');
+            setText('univ-perf-claude', s.modelPerformance.claude + '% 准确率');
+            setText('univ-perf-kimi', s.modelPerformance.kimi + '% 准确率');
+            setText('univ-perf-local', s.modelPerformance.local + '% 准确率');
+
+            // 子弹窗顶部数字
+            setText('big-lobster-progress', Math.round(s.bigLobster.progress) + '%');
+            setText('big-lobster-sessions', s.bigLobster.sessions.toLocaleString());
+            setText('big-lobster-nodes', s.bigLobster.nodes.toLocaleString());
+            setText('army-progress', Math.round(s.army.progress) + '%');
+            setText('army-shares', s.army.shares.toLocaleString());
+            setText('army-learners', s.army.learners.toLocaleString());
+            setText('model-evolution-progress', Math.round(s.modelEvolution.progress) + '%');
+            setText('model-evolution-iterations', s.modelEvolution.iterations.toLocaleString());
+            setText('model-evolution-new', '+' + s.modelEvolution.new);
+            setText('model-evolution-eliminated', '-' + s.modelEvolution.eliminated);
+            setText('win-rate-progress', Math.round(s.winRate.progress) + '%');
+            setText('win-rate-current', s.winRate.current.toFixed(1) + '%');
+            setText('win-rate-target', s.winRate.target.toFixed(1) + '%');
+            setText('win-rate-boost', '+' + s.winRate.boost.toFixed(1) + '%');
+            setText('strategy-evolution-progress', Math.round(s.strategyEvolution.progress) + '%');
+            setText('strategy-evolution-count', s.strategyEvolution.count);
+            setText('strategy-evolution-optimizations', '+' + s.strategyEvolution.optimizations);
+
+            // AI策略开发弹窗
+            setText('ai-dev-progress', Math.round(s.recent.aiDev) + '%');
+            setText('ai-dev-models', s.aiDev.models);
+            setText('ai-dev-params', s.aiDev.params.toLocaleString() + ' B');
+            setText('ai-dev-compute', s.aiDev.compute.toLocaleString() + ' TFLOPS');
+            setText('ai-dev-dataset', s.aiDev.dataset.toFixed(1) + 'M 条');
+            setText('ai-dev-accuracy', s.aiDev.accuracy.toFixed(1) + '%');
+            setText('ai-dev-gpu', Math.round(s.aiDev.gpu) + '%');
+            setText('ai-dev-latency', Math.round(s.aiDev.latency) + ' ms');
+            setText('ai-dev-loss', (s.aiDev.loss > 0 ? '+' : '') + s.aiDev.loss.toFixed(1) + '%');
+            setText('ai-dev-throughput', s.aiDev.throughput.toLocaleString() + ' tok/s');
+            setText('ai-dev-chain', s.aiDev.chain + ' 步');
+        }
+
+        function tickUniversity() {
+            const s = universityState;
+            s.bigLobster.progress = clamp(s.bigLobster.progress + randBetween(-0.3, 0.4), 0, 99);
+            s.bigLobster.sessions += Math.random() > 0.7 ? 1 : 0;
+            s.bigLobster.nodes += Math.random() > 0.6 ? Math.floor(randBetween(1, 4)) : 0;
+            s.army.progress = clamp(s.army.progress + randBetween(-0.2, 0.5), 0, 99);
+            s.army.shares += Math.random() > 0.7 ? Math.floor(randBetween(1, 4)) : 0;
+            s.army.learners += Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+            s.modelEvolution.progress = clamp(s.modelEvolution.progress + randBetween(-0.2, 0.4), 0, 99);
+            s.modelEvolution.iterations += Math.random() > 0.75 ? 1 : 0;
+            s.modelEvolution.new += Math.random() > 0.85 ? 1 : 0;
+            s.modelEvolution.eliminated += Math.random() > 0.9 ? 1 : 0;
+            s.winRate.progress = clamp(s.winRate.progress + randBetween(-0.2, 0.3), 0, 99);
+            s.winRate.current = clamp(s.winRate.current + randBetween(-0.2, 0.3), 55, s.winRate.target);
+            s.winRate.boost = clamp(s.winRate.boost + randBetween(-0.1, 0.15), 0, 25);
+            s.strategyEvolution.progress = clamp(s.strategyEvolution.progress + randBetween(-0.2, 0.3), 0, 99);
+            s.strategyEvolution.count += Math.random() > 0.9 ? (Math.random() > 0.4 ? 1 : -1) : 0;
+            s.strategyEvolution.optimizations += Math.random() > 0.8 ? 1 : 0;
+            s.recent.arbitrage = clamp(s.recent.arbitrage + randBetween(0, 0.5), 0, 100);
+            s.recent.aiDev = clamp(s.recent.aiDev + randBetween(0, 0.3), 0, 100);
+            s.aiDev.models += Math.random() > 0.92 ? 1 : 0;
+            s.aiDev.params += Math.floor(randBetween(0.2, 1.8));
+            s.aiDev.compute += Math.floor(randBetween(40, 180));
+            s.aiDev.dataset = clamp(s.aiDev.dataset + randBetween(0.01, 0.08), 0.1, 12.0);
+            s.aiDev.accuracy = clamp(s.aiDev.accuracy + randBetween(-0.2, 0.4), 65.0, 95.0);
+            s.aiDev.gpu = clamp(s.aiDev.gpu + randBetween(-2, 3), 45, 99);
+            s.aiDev.latency = clamp(s.aiDev.latency + randBetween(-1.5, 1.2), 8, 45);
+            s.aiDev.loss = clamp(s.aiDev.loss + randBetween(-0.3, 0.1), -35.0, -2.0);
+            s.aiDev.throughput = Math.max(1200, s.aiDev.throughput + Math.floor(randBetween(-80, 160)));
+            s.aiDev.chain += Math.random() > 0.85 ? 1 : 0;
+            s.modelPerformance.gpt = clamp(s.modelPerformance.gpt + randBetween(-0.1, 0.1), 90, 98);
+            s.modelPerformance.claude = clamp(s.modelPerformance.claude + randBetween(-0.1, 0.1), 87, 96);
+            s.modelPerformance.kimi = clamp(s.modelPerformance.kimi + randBetween(-0.1, 0.1), 85, 94);
+            s.modelPerformance.local = clamp(s.modelPerformance.local + randBetween(-0.05, 0.15), 82, 92);
+            renderUniversity();
+        }
+
+        // 各课程学习流日志池（融入技术指标）
+        const universityLogPool = {
+            aiDev: [
+                { icon: '🤖', prefix: 'AI引擎', msgs: ['启动自研{indicator}模型预训练', '加载{indicator}架构，初始化{val}B参数', '配置{indicator}路由层，专家网络{count}个', '接入GPU算力集群，并行度{val}', '使用{indicator}进行量化交易指令微调', '启用{indicator}推理时Scaling，性能提升{val}%', '部署{indicator}多模态融合模块', '优化{indicator}显存占用，节省{val}%', '完成{indicator}训练epoch {count}，loss降至{val}', '基于{indicator}生成市场评论文本，BLEU {val}', '使用{indicator}进行财报情感分析，准确率{val}%', '启动{indicator}强化学习对齐(DPO)', '接入{indicator}向量检索库，RAG命中{val}%', '测试{indicator}工具调用，成功率{val}%', '压缩{indicator}模型至FP8，体积减少{val}%', '训练{indicator}世界模型，市场模拟误差{val}%', '引入{indicator}状态空间模型(Mamba)，序列效率提升{val}%', '基于{indicator}联合嵌入预测架构(JEPA)学习表征', '使用{indicator}扩散模型生成合成行情数据', '开启{indicator} o1-like 长思维链训练，推理步数{count}', '接入{indicator} Gemini 级多模态编码器', '优化{indicator}代码生成，策略回测通过率{val}%', '合成{indicator}高质量指令数据{count}K条'] },
+                { icon: '🧠', prefix: '模型中心', msgs: ['{indicator}注意力头可视化完成', '{indicator}权重矩阵稀疏化至{val}%', 'MoE {indicator}负载均衡系数{val}', '蒸馏{indicator}小模型，速度提升{val}x', '{indicator}长上下文外推至{count}K tokens', '{indicator} Embedding 向量维度{count}对齐完成', '{indicator}模型剪枝后参数量{val}B', '{indicator}知识蒸馏损失收敛至{val}', '{indicator}注意力热图与价格走势相关性{val}%', '{indicator}分类头在验证集准确率达{val}%'] },
+                { icon: '⚡', prefix: '算力调度', msgs: ['GPU集群{indicator}利用率{val}%', 'A100/H100 {indicator}混合调度{count}卡', 'FP8 {indicator}训练吞吐{val} TFLOPS', '{indicator}通信延迟优化至{val}μs', '动态{indicator}显存回收节省{val}GB', 'NVLink {indicator}全Reduce带宽{val} GB/s', 'InfiniBand/RoCE {indicator} RDMA 网络就绪', '{indicator}Chiplet 架构多die封装算力提升{val}%', '光互连{indicator}模块功耗降低{val}%', 'Grace Hopper {indicator}超级芯片调度{count}颗', 'Dojo {indicator}训练_TILE 利用率{val}%', 'AI基础设施{indicator} PUE 降至{val}'] },
+                { icon: '🔗', prefix: '智能体网络', msgs: ['Agent {indicator}执行交易指令{count}条', '{indicator}多Agent协作完成组合再平衡', '调用{indicator}工具：行情/下单/风控', '{indicator}自我反思链长度{count}步', 'Agent {indicator}胜率评估{val}%', 'ReAct {indicator}推理+行动循环收敛', 'Plan-and-Execute {indicator}任务分解{count}步', 'Toolformer {indicator}工具调用准确率{val}%', 'AutoGPT {indicator}自主研究市场报告', '{indicator}记忆库存入关键市场事件{count}条'] },
+                { icon: '🚀', prefix: '前沿探索', msgs: ['世界模型{indicator}预测未来{count}步市场状态', '具身智能{indicator}Agent接入模拟交易所', '神经符号{indicator}AI融合规则与深度学习', 'Test-time Compute {indicator}推理预算{count}K', 'Self-play {indicator}策略自我博弈{count}轮', '因果推断{indicator}发现市场驱动因子{count}个', '联邦学习{indicator}节点聚合模型更新', '量子启发{indicator}优化组合权重{val}%'] }
+            ],
+            bigLobster: [
+                { icon: '🦞', prefix: '大龙虾', msgs: ['分析{market}的{indicator}形态', '检测到{indicator}突破信号，置信度{val}%', '基于{indicator}优化入场阈值', '对比{indicator}历史{count}次回测', '发现{indicator}与{indicator2}共振'] },
+                { icon: '📊', prefix: '胜率引擎', msgs: ['{indicator}策略回测胜率{val}%', '优化{indicator}参数，夏普比率提升至{val}', '基于{indicator}筛选{count}个标的', '{indicator}信号过滤后胜率提升{val}%'] },
+                { icon: '🧬', prefix: '进化引擎', msgs: ['将{indicator}特征加入模型', '{indicator}权重调整至{val}%', '淘汰表现不佳的{indicator}变体', '生成{indicator}×{indicator2}组合策略'] }
+            ],
+            army: [
+                { icon: '🦞', prefix: '小龙虾 #{id}', msgs: ['我的{indicator}检测触发', '学习{indicator}：{action}', '分享{indicator}回测结果，胜率{val}%', '应用{indicator}到{market}', '收到{indicator}策略更新'] },
+                { icon: '📡', prefix: '分布式节点', msgs: ['{count}只小龙虾同步{indicator}参数', '知识传播延迟{val}ms', '网络覆盖率{val}%', '新加入{indicator}学习小组'] }
+            ],
+            winRate: [
+                { icon: '📈', prefix: '胜率引擎', msgs: ['分析最近{count}笔交易', '识别亏损模式：{indicator}过早触发', '优化{indicator}止损，胜率提升{val}%', '调整{indicator}入场时机，胜率提升{val}%', '综合{indicator}+{indicator2}优化，胜率提升{val}%', '回测{indicator}组合，目标胜率达成{val}%'] }
+            ],
+            modelEvolution: [
+                { icon: '🧬', prefix: '进化引擎', msgs: ['开始第{count}次迭代', '检测到{indicator}策略优化机会', '回测新{indicator}策略，胜率提升{val}%', '策略验证通过，准备部署', '淘汰低效{indicator}策略{count}个', '将{indicator}特征编码进基因', '种群适应度提升至{val}%'] }
+            ],
+            strategyEvolution: [
+                { icon: '🎯', prefix: '策略引擎', msgs: ['开始策略优化', '分析{count}个活跃策略', '识别低效{indicator}策略{count}个', '优化完成，{indicator}胜率提升{val}%', '部署新{indicator}策略', '策略{count}通过{indicator}验证'] }
+            ],
+            riskManagement: [
+                { icon: '🛡️', prefix: '风险引擎', msgs: ['开始学习{indicator}风险管理', '基于{indicator}计算仓位规模', '{indicator}止损设为{val}x ATR', '风险分散：{count}个不相关标的', '回撤控制目标{val}%', '风险评分更新为{grade}'] }
+            ]
+        };
+
+        function randTopic() { return technicalIndicatorTopics[Math.floor(Math.random() * technicalIndicatorTopics.length)]; }
+        function fillTemplate(tpl) {
+            const t1 = randTopic(), t2 = randTopic();
+            const market = ['BTC-5M', 'ETH-1H', 'SOL-15M', '英伟达[NVIDIA]', '特斯拉[TSLA]', '黄金[XAU]'][Math.floor(Math.random() * 6)];
+            return tpl
+                .replace(/{indicator}/g, t1.name)
+                .replace(/{indicator2}/g, t2.name)
+                .replace(/{market}/g, market)
+                .replace(/{val}/g, (Math.random() * 20 + 70).toFixed(1))
+                .replace(/{count}/g, Math.floor(Math.random() * 20 + 3))
+                .replace(/{grade}/g, ['A+', 'A', 'A-', 'B+'][Math.floor(Math.random() * 4)])
+                .replace(/{action}/g, t1.actions[Math.floor(Math.random() * t1.actions.length)]);
+        }
+
+        function makeLearningLine(type, isNew) {
+            const pool = universityLogPool[type];
+            const group = pool[Math.floor(Math.random() * pool.length)];
+            const tpl = group.msgs[Math.floor(Math.random() * group.msgs.length)];
+            const prefix = group.prefix.replace('{id}', Math.floor(Math.random() * 500).toString().padStart(3, '0'));
+            const text = fillTemplate(tpl);
+            const t = new Date();
+            const time = t.toLocaleTimeString('zh-CN', { hour12: false });
+            return `<div class="learning-line ${isNew ? 'new' : ''}">[${time}] ${group.icon} ${prefix}: ${text}</div>`;
+        }
+
+        const learningInterfaceState = {
+            aiDev: [], bigLobster: [], army: [], winRate: [], modelEvolution: [], strategyEvolution: [], riskManagement: []
+        };
+
+        function initLearningInterface(type, containerId, count) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            learningInterfaceState[type] = [];
+            for (let i = count - 1; i >= 0; i--) {
+                learningInterfaceState[type].push(makeLearningLine(type, i === 0));
+            }
+            renderLearningInterface(type, containerId);
+        }
+
+        function renderLearningInterface(type, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = learningInterfaceState[type].join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function tickLearningInterfaces() {
+            const interfaces = [
+                { type: 'bigLobster', id: 'big-lobster-learning-interface', interval: 0.25 },
+                { type: 'army', id: 'lobster-army-learning-interface', interval: 0.35 },
+                { type: 'winRate', id: 'win-rate-interface', interval: 0.3 },
+                { type: 'modelEvolution', id: 'model-evolution-interface', interval: 0.25 },
+                { type: 'strategyEvolution', id: 'strategy-evolution-interface', interval: 0.3 },
+                { type: 'aiDev', id: 'ai-dev-interface', interval: 0.3 },
+                { type: 'riskManagement', id: 'risk-management-interface', interval: 0.2 }
+            ];
+            interfaces.forEach(item => {
+                if (Math.random() < item.interval) {
+                    learningInterfaceState[item.type] = learningInterfaceState[item.type].map(line => line.replace(' new', ''));
+                    learningInterfaceState[item.type].push(makeLearningLine(item.type, true));
+                    if (learningInterfaceState[item.type].length > 20) learningInterfaceState[item.type].shift();
+                    renderLearningInterface(item.type, item.id);
+                }
+            });
+        }
+
+        // ===== Token 仪表盘动态数据（慢慢累积）=====
+        const tokenDashboardState = {
+            totalTokens: 10240000,
+            cost: 38.24,
+            costDelta: -12.0,
+            big: { tokens: 456300, cost: 16.82 },
+            army: { tokens: 777400, cost: 28.87 }
+        };
+        function fmtTokCount(n) {
+            if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+            if (n >= 1000) return Math.round(n / 1000) + 'K';
+            return String(Math.round(n));
+        }
+        function renderTokenDashboard() {
+            const s = tokenDashboardState;
+            const totalEl = document.getElementById('total-tokens');
+            if (totalEl) totalEl.textContent = (s.totalTokens / 1e6).toFixed(2) + ' M';
+            const costEl = document.getElementById('total-token-cost');
+            if (costEl) costEl.textContent = '$' + s.cost.toFixed(2);
+            const deltaEl = document.getElementById('token-cost-delta');
+            if (deltaEl) deltaEl.textContent = '▼ ' + s.costDelta.toFixed(1) + '%';
+            const bigText = document.getElementById('big-lobster-tokens');
+            if (bigText) bigText.innerHTML = fmtTokCount(s.big.tokens) + ' tok / <span class="text-apple-purple">$' + s.big.cost.toFixed(2) + '</span>';
+            const armyText = document.getElementById('lobster-army-tokens');
+            if (armyText) armyText.innerHTML = fmtTokCount(s.army.tokens) + ' tok / <span class="text-apple-purple">$' + s.army.cost.toFixed(2) + '</span>';
+            const bigBar = document.getElementById('big-lobster-bar');
+            if (bigBar) { bigBar.style.transition = 'width 2.8s cubic-bezier(0.4, 0, 0.2, 1)'; bigBar.style.width = (s.big.cost / s.cost * 100).toFixed(1) + '%'; }
+            const armyBar = document.getElementById('lobster-army-bar');
+            if (armyBar) { armyBar.style.transition = 'width 2.8s cubic-bezier(0.4, 0, 0.2, 1)'; armyBar.style.width = (s.army.cost / s.cost * 100).toFixed(1) + '%'; }
+        }
+        function tickTokenDashboard() {
+            const s = tokenDashboardState;
+            const dTok = 600 + Math.floor(Math.random() * 2600); // 每次新增 600~3200 tokens
+            const split = 0.35 + Math.random() * 0.15;           // 大龙虾占 35%~50%
+            const bigTok = Math.floor(dTok * split);
+            s.big.tokens += bigTok;
+            s.army.tokens += dTok - bigTok;
+            s.totalTokens += dTok;
+            const dCost = dTok * 0.0000037;                      // 平均 ~$3.7/M tokens
+            s.big.cost += dCost * split;
+            s.army.cost += dCost * (1 - split);
+            s.cost += dCost;
+            s.costDelta = Math.min(-8, Math.max(-15, s.costDelta + (Math.random() - 0.5) * 0.08));
+            renderTokenDashboard();
+        }
+
+        // ===== 实时Token消耗 modal 动态数据 =====
+        const tokenUsageModalState = {
+            gpt: { tokens: 456000, rate: 0.00003684 },
+            claude: { tokens: 312000, rate: 0.00003692 },
+            kimi: { tokens: 289000, rate: 0.00002000 },
+            local: { tokens: 178000, rate: 0 }
+        };
+        function formatCompactTokens(n) {
+            if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+            if (n >= 1_000) return Math.round(n / 1_000) + 'K';
+            return String(Math.round(n));
+        }
+        function renderTokenUsageModal() {
+            const s = tokenUsageModalState;
+            const gptCost = s.gpt.tokens * s.gpt.rate;
+            const claudeCost = s.claude.tokens * s.claude.rate;
+            const kimiCost = s.kimi.tokens * s.kimi.rate;
+            const localCost = 0;
+            const map = {
+                'modal-gpt-tokens': formatCompactTokens(s.gpt.tokens),
+                'modal-gpt-cost': '$' + gptCost.toFixed(2),
+                'modal-claude-tokens': formatCompactTokens(s.claude.tokens),
+                'modal-claude-cost': '$' + claudeCost.toFixed(2),
+                'modal-kimi-tokens': formatCompactTokens(s.kimi.tokens),
+                'modal-kimi-cost': '$' + kimiCost.toFixed(2),
+                'modal-local-tokens': formatCompactTokens(s.local.tokens),
+                'modal-local-cost': '$' + localCost.toFixed(2)
+            };
+            for (const [id, text] of Object.entries(map)) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            }
+        }
+        function tickTokenUsageModal() {
+            const s = tokenUsageModalState;
+            s.gpt.tokens += 200 + Math.floor(Math.random() * 600);
+            s.claude.tokens += 150 + Math.floor(Math.random() * 400);
+            s.kimi.tokens += 180 + Math.floor(Math.random() * 500);
+            s.local.tokens += 100 + Math.floor(Math.random() * 300);
+            renderTokenUsageModal();
+        }
+
+        // ===== AI学习中心 modal 动态数据 =====
+        const learningDashboardState = {
+            progress: 87.3,
+            models: 12,
+            dataPoints: 2400000,
+            lastUpdate: new Date()
+        };
+        function renderLearningDashboard() {
+            const s = learningDashboardState;
+            const progressEl = document.getElementById('learning-progress-value');
+            const barEl = document.getElementById('learning-progress-bar');
+            if (progressEl) progressEl.textContent = Math.round(s.progress) + '%';
+            if (barEl) { barEl.style.transition = 'width 1.2s ease-out'; barEl.style.width = Math.round(s.progress) + '%'; }
+            const modelsEl = document.getElementById('learning-models-value');
+            if (modelsEl) modelsEl.textContent = s.models;
+            const dataEl = document.getElementById('learning-data-points');
+            if (dataEl) dataEl.textContent = formatCompactTokens(s.dataPoints);
+            const updateEl = document.getElementById('learning-last-update');
+            if (updateEl) {
+                const sec = Math.floor((Date.now() - s.lastUpdate.getTime()) / 1000);
+                updateEl.textContent = sec < 60 ? '最后更新: 刚刚' : `最后更新: ${Math.floor(sec / 60)}分钟前`;
+            }
+        }
+        function tickLearningDashboard() {
+            const s = learningDashboardState;
+            // 学习进度在 85%~92% 之间缓慢振荡
+            s.progress += (Math.random() - 0.5) * 0.25;
+            if (s.progress > 92) s.progress = 92;
+            if (s.progress < 85) s.progress = 85;
+            // 已训练模型很慢地增长（平均约 90 秒 +1）
+            if (Math.random() < 0.015) s.models += 1;
+            // 数据点持续慢慢增加
+            s.dataPoints += 1200 + Math.floor(Math.random() * 3500);
+            s.lastUpdate = new Date();
+            renderLearningDashboard();
         }
 
         function renderTokenUsage() {
             const container = document.getElementById('token-usage-feed');
             if (!container) return;
-            container.innerHTML = tokenUsage.slice(0, 3).map(t => `<div class="token-usage-item"><div class="flex items-center gap-2"><span class="status-dot status-scanning"></span><span class="text-xs">${t.model}</span></div><div class="text-xs text-apple-purple">${t.tokens} tok</div></div>`).join('');
+            container.innerHTML = tokenUsage.slice(0, 3).map(t => `<div class="token-usage-item"><div class="flex items-center gap-2"><span class="status-dot status-scanning"></span><span class="text-xs">${t.model}</span></div><div class="text-xs text-apple-purple">${formatCompactTokens(t.tokens)} tok</div></div>`).join('');
+        }
+        function tickTokenUsageFeed() {
+            tokenUsage.forEach(t => { t.tokens += 30 + Math.floor(Math.random() * 120); });
+            renderTokenUsage();
         }
 
         function renderLearningLog() {
@@ -1784,28 +2664,74 @@
                 const statusMap = { 'open': '执行中', 'filled': '已成交', 'cancelled': '已取消' };
                 filtered = orders.filter(o => o.status === statusMap[currentOrderFilter]);
             }
-            tbody.innerHTML = filtered.map(o => `<tr onclick="openOrderDetail('${o.id}')" style="cursor: pointer;"><td><span class="font-mono text-apple-blue">${o.id}</span></td><td>${o.lobster}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>${o.size}</td><td>${o.price}</td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td><td class="text-gray-600">${o.time}</td><td><span class="text-apple-green">${o.pnl}</span></td></tr>`).join('');
+            tbody.innerHTML = filtered.map(o => {
+                const pnl = getOrderPnL(o);
+                return `<tr onclick="openOrderDetail('${o.id}')" style="cursor: pointer;"><td><span class="font-mono text-apple-blue">${o.id}</span></td><td>${o.lobster}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>${o.size}</td><td>${getCurrentOrderPrice(o.market, o.entry)}</td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td><td class="text-gray-600">${o.time}</td><td><span class="${pnl.cls}">${pnl.text}</span></td></tr>`;
+            }).join('');
         }
 
         function renderPositions() {
             const tbody = document.getElementById('positions-table-body');
             if (!tbody) return;
-            tbody.innerHTML = positions.map(p => `<tr><td>${p.product}</td><td><span class="badge ${p.side === '多头' ? 'badge-elite' : 'badge-novice'}">${p.side}</span></td><td>${p.size}</td><td>${p.entry}</td><td>${p.current}</td><td><span class="text-apple-green">${p.pnl}</span></td><td><span class="text-apple-green">${p.pnlPct}</span></td><td>${p.lobster}</td></tr>`).join('');
+            let longCount = 0, shortCount = 0;
+            let longValue = 0, shortValue = 0;
+            let totalPnl = 0;
+
+            tbody.innerHTML = positions.map(p => {
+                const current = (marketPrices[p.product] != null && marketPrices[p.product] > 0) ? marketPrices[p.product] : p.base;
+                const sym = marketCurrency[p.product] || '$';
+                const isLong = p.side === '多头';
+                const pnlPct = isLong ? ((current - p.entry) / p.entry) : ((p.entry - current) / p.entry);
+                const pnl = p.size * pnlPct;
+                const pnlAbs = Math.abs(pnl);
+                const pnlPctAbs = Math.abs(pnlPct * 100);
+                const pnlCls = pnl >= 0 ? 'text-apple-green' : 'text-red-400';
+                const sign = pnl >= 0 ? '+' : '-';
+
+                if (isLong) { longCount++; longValue += p.size; }
+                else { shortCount++; shortValue += p.size; }
+                totalPnl += pnl;
+
+                return `<tr><td>${p.product}</td><td><span class="badge ${isLong ? 'badge-elite' : 'badge-novice'}">${p.side}</span></td><td>${formatCurrency(p.size)}</td><td>${sym}${formatPrice(p.entry)}</td><td>${sym}${formatPrice(current)}</td><td><span class="${pnlCls}">${sign}${formatCurrency(pnlAbs)}</span></td><td><span class="${pnlCls}">${sign}${pnlPctAbs.toFixed(2)}%</span></td><td>${p.lobster}</td></tr>`;
+            }).join('');
+
+            const totalValue = longValue + shortValue;
+            const avgSize = positions.length ? totalValue / positions.length : 0;
+
+            const longCountEl = document.getElementById('pos-long-count');
+            const longValueEl = document.getElementById('pos-long-value');
+            const shortCountEl = document.getElementById('pos-short-count');
+            const shortValueEl = document.getElementById('pos-short-value');
+            const avgSizeEl = document.getElementById('pos-avg-size');
+            const totalPnlEl = document.getElementById('pos-total-pnl');
+            if (longCountEl) longCountEl.textContent = longCount;
+            if (longValueEl) longValueEl.textContent = formatCurrency(longValue);
+            if (shortCountEl) shortCountEl.textContent = shortCount;
+            if (shortValueEl) shortValueEl.textContent = formatCurrency(shortValue);
+            if (avgSizeEl) avgSizeEl.textContent = formatCurrency(avgSize);
+            if (totalPnlEl) {
+                const pnlAbs = Math.abs(totalPnl);
+                totalPnlEl.textContent = (totalPnl >= 0 ? '+' : '-') + formatCurrency(pnlAbs);
+                totalPnlEl.className = 'text-xl font-bold ' + (totalPnl >= 0 ? 'text-apple-green' : 'text-red-400');
+            }
+
+            const modalValue = document.getElementById('in-positions-modal-value');
+            if (modalValue) modalValue.textContent = formatCurrency(totalValue) + ' - ' + positions.length + '个活跃持仓';
         }
 
         function renderLobsterGrid() {
             const grid = document.getElementById('lobster-grid');
             if (!grid) return;
             const activeLobsters = lobsterArmy.filter(l => l.status !== 'inactive').slice(0, 15);
-            grid.innerHTML = activeLobsters.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)}"></div></div></div>`).join('');
+            grid.innerHTML = activeLobsters.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)} ${l.status === 'online' ? 'lobster-dot-online' : ''}"></div></div></div>`).join('');
         }
 
         function renderLevelPyramid() {
             const container = document.getElementById('level-pyramid');
             if (!container) return;
-            container.innerHTML = levelPyramid.map(l => `<div class="flex items-center gap-3"><div class="w-20 text-xs text-gray-600">${l.name}</div><div class="flex-1"><div class="progress-bar h-2"><div class="progress-fill" style="width: ${(l.count / 500 * 100)}%; background: ${l.color};"></div></div></div><div class="w-16 text-right text-xs">${l.count}</div></div>`).join('');
+            container.innerHTML = levelPyramid.map(l => `<div class="flex items-center gap-3"><div class="w-32 text-xs text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis flex-shrink-0" title="${l.name}">${l.name}</div><div class="flex-1 min-w-0"><div class="progress-bar h-2"><div class="progress-fill" style="width: ${(l.count / 500 * 100)}%; background: ${l.color};"></div></div></div><div class="w-16 text-right text-xs flex-shrink-0">${l.count}</div></div>`).join('');
             const detailContainer = document.getElementById('level-pyramid-detail');
-            if (detailContainer) { detailContainer.innerHTML = levelPyramid.map(l => `<div class="card"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background: ${l.color}20; color: ${l.color};">${l.level === 'legend' ? '👑' : l.level === 'master' ? '💎' : l.level === 'expert' ? '🥇' : l.level === 'elite' ? '🥈' : '🥉'}</div><div><div class="font-medium">${l.name}</div><div class="text-xs text-gray-600">${l.count} 只小龙虾</div></div></div><div class="text-right"><div class="text-lg font-bold" style="color: ${l.color};">${l.profit}</div><div class="text-xs text-gray-600">总收益</div></div></div><div class="progress-bar h-2"><div class="progress-fill" style="width: ${(l.count / 500 * 100)}%; background: ${l.color};"></div></div></div>`).join(''); }
+            if (detailContainer) { detailContainer.innerHTML = levelPyramid.map(l => `<div class="card"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3 min-w-0"><div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style="background: ${l.color}20; color: ${l.color};">${l.icon}</div><div class="min-w-0"><div class="font-medium whitespace-nowrap overflow-hidden text-ellipsis" title="${l.name}">${l.name}</div><div class="text-xs text-gray-600">${l.count} 只小龙虾</div></div></div><div class="text-right flex-shrink-0"><div class="text-lg font-bold" style="color: ${l.color};">${l.profit}</div><div class="text-xs text-gray-600">总收益</div></div></div><div class="progress-bar h-2"><div class="progress-fill" style="width: ${(l.count / 500 * 100)}%; background: ${l.color};"></div></div></div>`).join(''); }
         }
 
         function renderAllModels() {
@@ -1827,7 +2753,7 @@
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const pageLobsters = filteredLobsters.slice(start, end);
-            grid.innerHTML = pageLobsters.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''} ${!l.activated ? 'not-activated' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)}"></div>${!l.activated ? '<div class="text-xs text-apple-orange mt-1">待激活</div>' : ''}</div></div>`).join('');
+            grid.innerHTML = pageLobsters.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''} ${!l.activated ? 'not-activated' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)} ${l.status === 'online' ? 'lobster-dot-online' : ''}"></div>${!l.activated ? '<div class="text-xs text-apple-orange mt-1">待激活</div>' : ''}</div></div>`).join('');
             const indicator = document.getElementById('page-indicator');
             if (indicator) { indicator.textContent = `第 ${currentPage} 页 / 共 ${Math.ceil(filteredLobsters.length / itemsPerPage)} 页`; }
         }
@@ -1854,29 +2780,60 @@
                 { cls: 'status-online', rate: 'apple-green', min: 70, max: 88 },
                 { cls: 'status-learning', rate: 'apple-orange', min: 55, max: 68 }
             ];
-            const shuffled = [...products].sort(() => Math.random() - 0.5);
-            const selected = shuffled.slice(0, 3);
-            container.innerHTML = selected.map((p, i) => {
+            // 标的池 = 产品列表 + 持仓中的美股/加密标的
+            const modelPool = [...new Set([...products.map(p => p.name), 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'DOGE-5M', 'XRP-5M'])];
+            const shuffled = [...modelPool].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, 4);
+            container.innerHTML = selected.map((name, i) => {
                 const type = modelTypes[Math.floor(Math.random() * modelTypes.length)];
                 const status = statuses[Math.floor(Math.random() * statuses.length)];
                 const winRate = Math.floor(status.min + Math.random() * (status.max - status.min));
                 const tier = (i + 1) * 2 - 1;
-                return `<div class="flex justify-between items-center p-2 bg-gray-100 rounded"><div class="flex items-center gap-2"><span class="status-dot ${status.cls}"></span><span>T${tier}-${p.name}${type}</span></div><span class="text-${status.rate}">${winRate}% 胜率</span></div>`;
+                return `<div class="flex justify-between items-center p-2 bg-gray-100 rounded"><div class="flex items-center gap-2">${tokenIcon(name, 18)}<span class="font-medium text-sm">T${tier}-${name}${type}</span></div><span class="text-${status.rate}">${winRate}% 胜率</span></div>`;
             }).join('');
         }
 
         const marketBasePrices = {
             'BTC-5M': 77521.30, 'ETH-1H': 2417.00, 'SOL-15M': 145.67, 'MATIC-30M': 0.89,
+            'DOGE-5M': 0.128, 'XRP-5M': 0.68,
             '英伟达[NVIDIA]': 132.45, '特斯拉[TSLA]': 245.80, '长鑫科技': 58.30, '宇树科技': 89.60,
+            'AAPL': 222.50, 'MSFT': 455.30, 'GOOGL': 176.80, 'AMZN': 202.40,
             '黄金[XAU]': 2345.60, '美元': 7.18, '人民币': 1.00,
             '超级碗2024': 0.72, 'NBA决赛': 1.45
         };
         const marketCurrency = {
             'BTC-5M': '$', 'ETH-1H': '$', 'SOL-15M': '$', 'MATIC-30M': '$',
+            'DOGE-5M': '$', 'XRP-5M': '$',
             '英伟达[NVIDIA]': '$', '特斯拉[TSLA]': '$', '长鑫科技': '$', '宇树科技': '$',
+            'AAPL': '$', 'MSFT': '$', 'GOOGL': '$', 'AMZN': '$',
             '黄金[XAU]': '$', '美元': '¥', '人民币': '¥',
             '超级碗2024': '$', 'NBA决赛': '$'
         };
+        // 订单价格联动行情：根据 marketPrices / marketBasePrices 实时取当前价
+        function formatMarketPrice(market, price) {
+            const p = typeof price === 'number' ? price : (parseFloat(price) || 0);
+            const sym = marketCurrency[market] || '$';
+            const decimals = p < 10 ? 4 : 2;
+            return sym + p.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+        function getCurrentOrderPriceNum(market, fallbackPrice) {
+            const fallbackNum = typeof fallbackPrice === 'number' ? fallbackPrice : (parseFloat(fallbackPrice) || 100);
+            const base = marketBasePrices[market] != null ? marketBasePrices[market] : fallbackNum;
+            const live = marketPrices[market];
+            return (live != null && live > 0) ? live : base;
+        }
+        function getCurrentOrderPrice(market, fallbackPrice) {
+            return formatMarketPrice(market, getCurrentOrderPriceNum(market, fallbackPrice));
+        }
+        function getOrderPnL(o) {
+            if (o.status === '已取消') return { text: '$0', cls: 'text-gray-400' };
+            const current = getCurrentOrderPriceNum(o.market, o.entry);
+            const dir = o.side === '买入' ? 1 : -1;
+            const pnl = o.sizeNum * ((current / o.entry) - 1) * dir;
+            const cls = pnl >= 0 ? 'text-apple-green' : 'text-red-400';
+            const sign = pnl >= 0 ? '+' : '-';
+            return { text: sign + formatCurrency(Math.abs(pnl)), cls };
+        }
         const marketPrices = {};
         const marketPrev = {};
         function renderMarketData() {
@@ -1897,15 +2854,21 @@
             }).join('');
         }
         function updateMarketPrices() {
-            products.forEach(p => {
-                const base = marketBasePrices[p.name] != null ? marketBasePrices[p.name] : 100;
-                marketPrev[p.name] = marketPrices[p.name];
+            Object.keys(marketBasePrices).forEach(name => {
+                const base = marketBasePrices[name];
+                if (marketPrices[name] == null) { marketPrices[name] = base; marketPrev[name] = base; }
+                marketPrev[name] = marketPrices[name];
                 const change = (Math.random() - 0.5) * 0.02;
-                let next = marketPrices[p.name] * (1 + change);
+                let next = marketPrices[name] * (1 + change);
                 if (next <= 0) next = base;
-                marketPrices[p.name] = next;
+                marketPrices[name] = next;
             });
             renderMarketData();
+            renderPositions();
+            renderAIOrders(); // AI订单价格与盈亏随行情刷新
+            renderOrders(); // 首页订单预览价格与盈亏随行情刷新
+            if (document.getElementById('all-orders-table-body')) filterAllOrders(currentOrderFilter); // 全部订单弹窗同步刷新
+            if (!livePrices) setBackendStatus(false); // 模拟态：每次行情刷新同步更新时间
         }
 
         // ===== 实时行情后端对接（自动判断本地 / 云端）=====
@@ -1921,7 +2884,8 @@
                 const t = ts ? new Date(ts).toLocaleTimeString('zh-CN', { hour12: false }) : '';
                 el.innerHTML = '<span style="color:#30d158;">● 实时行情</span> <span style="color:#6e6e73;">' + t + '</span>';
             } else {
-                el.innerHTML = '<span style="color:#ff9f0a;">● 模拟行情（未连后端）</span>';
+                const t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+                el.innerHTML = '<span style="color:#30d158;">●</span> <span style="color:#6e6e73;">' + t + '</span>';
             }
         }
         async function fetchBackendPrices() {
@@ -1992,7 +2956,7 @@
             const strategyEvolutionChartEl = document.getElementById('strategy-evolution-chart');
             if (strategyEvolutionChartEl) { const strategyEvolutionChart = echarts.init(strategyEvolutionChartEl); const strategyDays = Array.from({length: 30}, (_, i) => `${i + 1}日`); const strategyData = strategyDays.map((_, i) => (40 + i * 0.5 + Math.random() * 3).toFixed(0)); strategyEvolutionChart.setOption({ tooltip: { trigger: 'axis' }, xAxis: { type: 'category', data: strategyDays, axisLabel: { color: '#6e6e73' } }, yAxis: { type: 'value', axisLabel: { color: '#6e6e73' } }, series: [{ type: 'line', data: strategyData, smooth: true, areaStyle: { color: 'rgba(239, 68, 68, 0.2)' }, lineStyle: { color: '#ff453a' }, itemStyle: { color: '#ff453a' } }] }); }
             const modelPerformanceChartEl = document.getElementById('model-performance-chart');
-            if (modelPerformanceChartEl) { const modelPerformanceChart = echarts.init(modelPerformanceChartEl); modelPerformanceChart.setOption({ tooltip: { trigger: 'axis' }, radar: { indicator: [{ name: '准确率', max: 100 }, { name: '速度', max: 100 }, { name: '成本', max: 100 }, { name: '稳定性', max: 100 }, { name: '扩展性', max: 100 }], axisName: { color: '#6e6e73' } }, series: [{ type: 'radar', data: [{ value: [94, 85, 60, 92, 88], name: 'GPT-5.6 Sol', itemStyle: { color: '#0a84ff' } }, { value: [91, 78, 70, 89, 85], name: 'Claude Opus 5', itemStyle: { color: '#bf5af2' } }, { value: [89, 95, 90, 87, 92], name: 'Kimi K3', itemStyle: { color: '#30d158' } }, { value: [85, 98, 95, 85, 90], name: '本地模型', itemStyle: { color: '#ff9f0a' } }] }] }); }
+            if (modelPerformanceChartEl) { const modelPerformanceChart = echarts.init(modelPerformanceChartEl); modelPerformanceChart.setOption({ tooltip: { trigger: 'axis' }, radar: { indicator: [{ name: '准确率', max: 100 }, { name: '速度', max: 100 }, { name: '成本', max: 100 }, { name: '稳定性', max: 100 }, { name: '扩展性', max: 100 }], axisName: { color: '#6e6e73' } }, series: [{ type: 'radar', data: [{ value: [94, 85, 60, 92, 88], name: 'GPT-5.6 Sol', itemStyle: { color: '#0a84ff' } }, { value: [91, 78, 70, 89, 85], name: 'Claude Opus 5', itemStyle: { color: '#bf5af2' } }, { value: [89, 95, 90, 87, 92], name: 'Kimi K3', itemStyle: { color: '#30d158' } }, { value: [85, 98, 95, 85, 90], name: '自研模型', itemStyle: { color: '#ff9f0a' } }] }] }); }
             const capitalDistributionChartEl = document.getElementById('capital-distribution-chart');
             if (capitalDistributionChartEl) { const capitalDistributionChart = echarts.init(capitalDistributionChartEl); capitalDistributionChart.setOption({ tooltip: { trigger: 'axis' }, xAxis: { type: 'category', data: levelPyramid.map(l => l.name), axisLabel: { color: '#6e6e73' } }, yAxis: { type: 'value', axisLabel: { color: '#6e6e73' } }, series: [{ type: 'pie', radius: ['40%', '70%'], data: levelPyramid.map(l => ({ value: parseFloat(l.profit.replace(/[$KM]/g, '')) * (l.profit.includes('M') ? 1000000 : 1000), name: l.name })), label: { show: true, formatter: '{b}: {d}%' }, color: levelPyramid.map(l => l.color) }] }); }
             window.addEventListener('resize', () => { if (profitChartEl) profitChart.resize(); if (feeChartEl) feeChart.resize(); if (pnlChartEl) pnlChart.resize(); if (tokenCostChartEl) tokenCostChart.resize(); if (winRateChartEl) winRateChart.resize(); if (strategyEvolutionChartEl) strategyEvolutionChart.resize(); if (modelPerformanceChartEl) modelPerformanceChart.resize(); if (capitalDistributionChartEl) capitalDistributionChart.resize(); });
@@ -2029,8 +2993,10 @@
                 countdown.classList.remove('hidden');
             }
             document.getElementById('lobster-ai-models').innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>GPT-5.6 Sol</span><span class="text-apple-green">45%</span></div><div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>Claude Opus 5</span><span class="text-apple-purple">30%</span></div><div class="flex justify-between items-center p-2 bg-gray-100 rounded"><span>Kimi K3</span><span class="text-apple-blue">25%</span></div></div>`;
-            document.getElementById('lobster-recent-orders').innerHTML = orders.slice(0, 3).map(o => `<div class="order-card"><div class="flex justify-between items-center"><div><div class="font-semibold text-sm">${o.market}</div><div class="text-xs text-gray-600">${o.side} ${o.size}</div></div><div class="text-right"><div class="text-xs text-apple-green">${o.pnl}</div><div class="text-xs text-gray-600">${o.time}</div></div></div></div>`).join('');
-            document.getElementById('lobster-orders-table').innerHTML = orders.slice(0, 5).map(o => `<tr><td class="text-gray-600">${o.time}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>${o.size}</td><td>${o.price}</td><td><span class="text-apple-green">${o.pnl}</span></td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td></tr>`).join('');
+            // 每只小龙虾随机抽取不同订单，避免全部雷同
+            const lobsterOrders = [...orders].sort(() => Math.random() - 0.5);
+            document.getElementById('lobster-recent-orders').innerHTML = lobsterOrders.slice(0, 4).map(o => `<div class="order-card"><div class="flex justify-between items-center"><div><div class="font-semibold text-sm">${o.market} <span class="text-xs text-gray-400 font-normal">${getCurrentOrderPrice(o.market, o.price)}</span></div><div class="text-xs text-gray-600">${o.side} $${o.size.toLocaleString()}</div></div><div class="text-right"><div class="text-xs text-apple-green">${o.pnl}</div><div class="text-xs text-gray-600">${o.time}</div></div></div></div>`).join('');
+            document.getElementById('lobster-orders-table').innerHTML = lobsterOrders.slice(0, 8).map(o => `<tr><td class="text-gray-600">${o.time}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>$${o.size.toLocaleString()}</td><td>${getCurrentOrderPrice(o.market, o.price)}</td><td><span class="text-apple-green">${o.pnl}</span></td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td></tr>`).join('');
             openModal('lobster-detail-modal');
         }
 
@@ -2111,7 +3077,10 @@
             if (!tbody) return;
             let filtered = orders;
             if (filter !== 'all') { const statusMap = { 'open': '执行中', 'filled': '已成交', 'cancelled': '已取消' }; filtered = orders.filter(o => o.status === statusMap[filter]); }
-            tbody.innerHTML = filtered.map(o => `<tr><td><span class="font-mono text-apple-blue">${o.id}</span></td><td>${o.lobster}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>${o.size}</td><td>${o.price}</td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td><td class="text-gray-600">${o.time}</td><td><span class="text-apple-green">${o.pnl}</span></td></tr>`).join('');
+            tbody.innerHTML = filtered.map(o => {
+                const pnl = getOrderPnL(o);
+                return `<tr><td><span class="font-mono text-apple-blue">${o.id}</span></td><td>${o.lobster}</td><td>${o.market}</td><td><span class="badge ${o.side === '买入' ? 'badge-elite' : 'badge-novice'}">${o.side}</span></td><td>${o.size}</td><td>${getCurrentOrderPrice(o.market, o.entry)}</td><td><span class="text-${o.status === '执行中' ? 'purple' : o.status === '已成交' ? 'emerald' : 'red'}-400">${o.status}</span></td><td class="text-gray-600">${o.time}</td><td><span class="${pnl.cls}">${pnl.text}</span></td></tr>`;
+            }).join('');
         }
 
         function filterStream(filter) {
@@ -2142,7 +3111,7 @@
             if (!grid) return;
             if (!query) { renderAllLobsters(); return; }
             const filtered = lobsterArmy.filter(l => l.id.toString().includes(query));
-            grid.innerHTML = filtered.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''} ${!l.activated ? 'not-activated' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)}"></div>${!l.activated ? '<div class="text-xs text-apple-orange mt-1">待激活</div>' : ''}</div></div>`).join('');
+            grid.innerHTML = filtered.map(l => `<div class="lobster-mini-card ${l.status === 'inactive' ? 'inactive' : ''} ${!l.activated ? 'not-activated' : ''}" onclick="openLobsterDetail(${l.id})"><div class="text-center"><div class="text-lg">🦞</div><div class="text-xs text-gray-600">#${l.id.toString().padStart(3, '0')}</div><div class="w-2 h-2 rounded-full mx-auto mt-1 ${getStatusColor(l.status)} ${l.status === 'online' ? 'lobster-dot-online' : ''}"></div>${!l.activated ? '<div class="text-xs text-apple-orange mt-1">待激活</div>' : ''}</div></div>`).join('');
         }
 
         function changePage(direction) {
@@ -2173,8 +3142,9 @@
             const product = products.find(p => p.name === name);
             if (!product) return;
             document.getElementById('product-detail-name').textContent = product.name;
+            document.getElementById('product-detail-icon').innerHTML = tokenIcon(product.name, 40);
             const categoryNames = { crypto: '加密货币', sports: '体育', stocks: '股票', gold: '黄金' };
-            document.getElementById('product-detail-category').textContent = (categoryNames[product.category] || product.category) + ' • Polymarket';
+            document.getElementById('product-detail-category').textContent = categoryNames[product.category] || product.category;
             document.getElementById('product-detail-prob').textContent = product.prob + '%';
             document.getElementById('product-detail-vol').textContent = product.vol;
             openModal('product-detail-modal');
@@ -2226,7 +3196,15 @@
             setInterval(() => { updateMarketPrices(); }, 4000);
             setInterval(() => { fetchBackendPrices(); }, 15000);
             setInterval(() => { const rate = document.getElementById('execution-rate'); if (rate) { rate.textContent = (35 + Math.floor(Math.random() * 20)) + '/秒'; } }, 3000);
-            setInterval(() => { const assets = document.getElementById('total-assets'); if (assets) { const base = 2458392.84; const change = (Math.random() - 0.5) * 1000; assets.textContent = '$' + (base + change).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); } }, 5000);
+            setInterval(() => { dashboardState.total += (Math.random() - 0.5) * 1000; renderDashboard(); }, 5000);
+            setInterval(tickTokenDashboard, 3000); // Token 仪表盘慢慢累积
+            setInterval(tickTokenUsageModal, 2500); // Token消耗modal四个模型慢慢累积
+            setInterval(tickLearningDashboard, 3000); // AI学习中心三个指标缓慢动态
+            setInterval(tickTokenUsageFeed, 2000); // 首页实时Token消耗列表慢慢累积
+            setInterval(tickEvolutionDialog, 6000); // 进化树学习对话动态追加
+            setInterval(generateEvolutionMetrics, 60000); // 进化树指标数字每日/每分钟同步
+            setInterval(tickUniversity, 3500); // 进化学院课程进度与指标缓慢动态
+            setInterval(tickLearningInterfaces, 2500); // 进化学院各课程学习流动态追加
             setInterval(() => {
                 const newItem = { type: Math.random() > 0.3 ? 'army' : 'big', time: new Date().toLocaleTimeString('zh-CN', {hour12: false}), message: `🦞 ${Math.random() > 0.3 ? '小龙虾 #' + Math.floor(Math.random() * 500 + 1).toString().padStart(3, '0') : '大龙虾'} 执行 ${products[Math.floor(Math.random() * products.length)].name} ${Math.random() > 0.5 ? '买入' : '卖出'} $${Math.floor(Math.random() * 10000)} @ $${(Math.random() * 100).toFixed(2)}` };
                 executionStream.unshift(newItem);

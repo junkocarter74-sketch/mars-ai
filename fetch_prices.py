@@ -17,7 +17,9 @@ import urllib.error
 # 与 HTML marketBasePrices 默认兜底值保持一致
 DEFAULTS = {
     "BTC-5M": 77521.30, "ETH-1H": 2417.00, "SOL-15M": 145.67, "MATIC-30M": 0.89,
+    "DOGE-5M": 0.128, "XRP-5M": 0.68,
     "英伟达[NVIDIA]": 132.45, "特斯拉[TSLA]": 245.80, "长鑫科技": 58.30, "宇树科技": 89.60,
+    "AAPL": 222.50, "MSFT": 455.30, "GOOGL": 176.80, "AMZN": 202.40,
     "黄金[XAU]": 2345.60, "美元": 7.18, "人民币": 1.00,
     "超级碗2024": 0.72, "NBA决赛": 1.45,
 }
@@ -30,7 +32,10 @@ def http_get_json(url, timeout=8):
 
 
 def fetch_crypto():
-    syms = {"BTC-5M": "BTCUSDT", "ETH-1H": "ETHUSDT", "SOL-15M": "SOLUSDT", "MATIC-30M": "MATICUSDT"}
+    syms = {
+        "BTC-5M": "BTCUSDT", "ETH-1H": "ETHUSDT", "SOL-15M": "SOLUSDT",
+        "MATIC-30M": "MATICUSDT", "DOGE-5M": "DOGEUSDT", "XRP-5M": "XRPUSDT"
+    }
     try:
         url = "https://api.binance.com/api/v3/ticker/price?symbols=" + json.dumps(list(syms.values())).replace(" ", "")
         data = http_get_json(url)
@@ -45,18 +50,22 @@ def fetch_crypto():
         return out, "binance"
     except Exception:
         try:
-            url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,polygon&vs_currencies=usd"
+            url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,polygon,dogecoin,ripple&vs_currencies=usd"
             d = http_get_json(url)
             return {
                 "BTC-5M": d["bitcoin"]["usd"], "ETH-1H": d["ethereum"]["usd"],
                 "SOL-15M": d["solana"]["usd"], "MATIC-30M": d["polygon"]["usd"],
+                "DOGE-5M": d["dogecoin"]["usd"], "XRP-5M": d["ripple"]["usd"],
             }, "coingecko"
         except Exception:
             return {}, "failed"
 
 
 def fetch_us_stocks():
-    syms = {"英伟达[NVIDIA]": "NVDA", "特斯拉[TSLA]": "TSLA"}
+    syms = {
+        "英伟达[NVIDIA]": "NVDA", "特斯拉[TSLA]": "TSLA",
+        "AAPL": "AAPL", "MSFT": "MSFT", "GOOGL": "GOOGL", "AMZN": "AMZN"
+    }
     out = {}
     try:
         for k, code in syms.items():
