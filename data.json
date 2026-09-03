@@ -1,6 +1,6 @@
 {
   "backend": "github-actions",
-  "updatedAt": "2026-09-03T21:45:13+0000",
+  "updatedAt": "2026-09-03T23:32:10+0000",
   "sources": {
     "英伟达[NVIDIA]": "tencent-gtimg",
     "特斯拉[TSLA]": "tencent-gtimg",
@@ -26,7 +26,7 @@
     "MSFT": 510.12,
     "GOOGL": 342.48,
     "AMZN": 258.9,
-    "黄金[XAU]": 4474.200195,
+    "黄金[XAU]": 4475.700195,
     "美元": 6.736468,
     "人民币": 1.0,
     "超级碗2024": 0.72,
