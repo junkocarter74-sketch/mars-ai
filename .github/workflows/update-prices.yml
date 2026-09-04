@@ -3,6 +3,7 @@ name: Update market prices
 on:
   schedule:
     # 每 5 分钟抓取一次行情并写回 data.json（公开仓库免费，无限时长）
+    # 2026-09-04 重新登记定时任务（仓库长期无活动导致 schedule 被平台停用，改文件触发重注册）
     - cron: '*/5 * * * *'
   workflow_dispatch: {}   # 允许在 Actions 页面手动触发
 
