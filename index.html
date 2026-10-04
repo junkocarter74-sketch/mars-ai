@@ -520,7 +520,6 @@
                         <div class="module-content-wrapper">
                             <div class="flex gap-2 mb-3">
                                 <button class="text-xs px-3 py-1 rounded bg-apple-blue/20 text-apple-blue" onclick="filterStream('all')" id="filter-all">全部</button>
-                                <button class="text-xs px-3 py-1 rounded bg-gray-100 text-gray-600" onclick="filterStream('big')" id="filter-big">大龙虾</button>
                                 <button class="text-xs px-3 py-1 rounded bg-gray-100 text-gray-600" onclick="filterStream('army')" id="filter-army">小龙虾</button>
                             </div>
                             <div class="module-scroll-area bg-gray-100 rounded-lg relative">
@@ -1104,7 +1103,7 @@
                 <button class="btn btn-danger btn-sm" onclick="closeModal('execution-stream-modal')">✕</button>
             </div>
             <div class="modal-body">
-                <div class="flex gap-2 mb-4"><button class="btn btn-sm btn-primary" onclick="filterExecutionStream('all')">全部</button><button class="btn btn-sm" style="background: rgba(0,0,0,0.04);" onclick="filterExecutionStream('big')">大龙虾</button><button class="btn btn-sm" style="background: rgba(0,0,0,0.04);" onclick="filterExecutionStream('army')">小龙虾</button></div>
+                <div class="flex gap-2 mb-4"><button class="btn btn-sm btn-primary" onclick="filterExecutionStream('all')">全部</button><button class="btn btn-sm" style="background: rgba(0,0,0,0.04);" onclick="filterExecutionStream('army')">小龙虾</button></div>
                 <div class="bg-gray-100 rounded-lg p-4 max-h-96 overflow-y-auto" id="all-execution-stream"></div>
             </div>
         </div>
@@ -1937,7 +1936,7 @@
         ];
 
         const telegramMessages = [
-            { from: '大龙虾', message: 'BTC突破$67K，执行买入订单', time: '14:23:45' },
+            { from: '大龙虾', message: 'BTC突破$67K，下发买入信号', time: '14:23:45' },
             { from: '小龙虾 #042', message: '收到，准备跟随', time: '14:23:42' },
             { from: '大龙虾', message: 'ETH显示看涨信号', time: '14:22:30' },
             { from: '小龙虾 #156', message: '已执行ETH买入', time: '14:22:15' },
@@ -1945,13 +1944,13 @@
             { from: '小龙虾 #089', message: '收到信号，准备执行', time: '14:20:45' },
         ];
 
+        // 大龙虾不做单（只做策略中枢、向军团下发信号），实时执行流只记录小龙虾军团的成交
         const executionStream = [
-            { type: 'big', time: '14:23:45', message: '🦞 大龙虾 执行 BTC-5M 买入 $5,000 @ $77,521.30' },
             { type: 'army', time: '14:23:42', message: '🦞 小龙虾 #042 执行 BTC-5M 买入 $2,500 @ $77,521.30' },
             { type: 'army', time: '14:23:38', message: '🦞 小龙虾 #156 执行 BTC-5M 买入 $1,800 @ $77,521.30' },
-            { type: 'big', time: '14:23:30', message: '🦞 大龙虾 执行 ETH-1H 卖出 $3,000 @ $2,417.00' },
             { type: 'army', time: '14:23:15', message: '🦞 小龙虾 #089 执行 ETH-1H 卖出 $1,500 @ $2,417.00' },
             { type: 'army', time: '14:22:45', message: '🦞 小龙虾 #234 执行 SOL-15M 买入 $2,000 @ $145.67' },
+            { type: 'army', time: '14:22:20', message: '🦞 小龙虾 #317 执行 特斯拉[TSLA] 买入 $3,200 @ $245.80' },
         ];
 
         let orderProducts = [
@@ -1977,7 +1976,8 @@
 
         const orderStatuses = ['执行中', '已成交', '已取消'];
         const orderSides = ['买入', '卖出'];
-        const orderLobsters = ['大龙虾', '小龙虾 #042', '小龙虾 #089', '小龙虾 #156', '小龙虾 #234', '小龙虾 #067', '小龙虾 #198', '小龙虾 #321'];
+        // 大龙虾不做单：委托订单只由小龙虾军团产生
+        const orderLobsters = ['小龙虾 #042', '小龙虾 #089', '小龙虾 #156', '小龙虾 #234', '小龙虾 #067', '小龙虾 #198', '小龙虾 #321'];
 
         const orders = Array.from({ length: 24 }, (_, i) => {
             const id = 78234 - i;
@@ -2001,7 +2001,7 @@
         });
 
         const positions = [
-            { product: 'BTC-5M', side: '多头', size: 45678, entry: 76200.00, base: 77521.30, lobster: '大龙虾' },
+            { product: 'BTC-5M', side: '多头', size: 45678, entry: 76200.00, base: 77521.30, lobster: '小龙虾 #007' },
             { product: 'ETH-1H', side: '空头', size: 23456, entry: 2447.00, base: 2417.00, lobster: '小龙虾 #042' },
             { product: 'SOL-15M', side: '多头', size: 12345, entry: 142.00, base: 145.67, lobster: '小龙虾 #156' },
             { product: '英伟达[NVIDIA]', side: '多头', size: 32000, entry: 125.00, base: 132.45, lobster: '小龙虾 #001' },
@@ -2013,7 +2013,7 @@
             { product: 'MATIC-30M', side: '空头', size: 9800, entry: 0.92, base: 0.89, lobster: '小龙虾 #198' },
             { product: 'DOGE-5M', side: '多头', size: 8500, entry: 0.105, base: 0.128, lobster: '小龙虾 #045' },
             { product: 'XRP-5M', side: '空头', size: 11200, entry: 0.72, base: 0.68, lobster: '小龙虾 #067' },
-            { product: '超级碗2024', side: '多头', size: 89000, entry: 0.68, base: 0.72, lobster: '大龙虾' },
+            { product: '超级碗2024', side: '多头', size: 89000, entry: 0.68, base: 0.72, lobster: '小龙虾 #088' },
         ];
 
         const lobsterArmy = [];
@@ -2657,9 +2657,9 @@
             if (!container) return;
             let filtered = executionStream;
             if (currentExecutionFilter !== 'all') { filtered = executionStream.filter(e => e.type === currentExecutionFilter); }
-            container.innerHTML = filtered.slice(0, 3).map(e => `<div class="stream-item ${e.type === 'big' ? 'bg-apple-blue/10' : 'bg-apple-purple/10'}"><div class="text-xs">${e.message}</div></div>`).join('');
+            container.innerHTML = filtered.slice(0, 3).map(e => `<div class="stream-item bg-apple-purple/10"><div class="text-xs">${e.message}</div></div>`).join('');
             const allContainer = document.getElementById('all-execution-stream');
-            if (allContainer) { allContainer.innerHTML = executionStream.map(e => `<div class="stream-item ${e.type === 'big' ? 'bg-apple-blue/10' : 'bg-apple-purple/10'}"><div class="flex justify-between"><span class="text-xs text-gray-600">${e.time}</span></div><div class="text-xs">${e.message}</div></div>`).join(''); }
+            if (allContainer) { allContainer.innerHTML = executionStream.map(e => `<div class="stream-item bg-apple-purple/10"><div class="flex justify-between"><span class="text-xs text-gray-600">${e.time}</span></div><div class="text-xs">${e.message}</div></div>`).join(''); }
         }
 
         function renderOrders() {
@@ -3091,7 +3091,7 @@
 
         function filterStream(filter) {
             currentExecutionFilter = filter;
-            document.querySelectorAll('#filter-all, #filter-big, #filter-army').forEach(btn => { btn.classList.remove('bg-apple-blue/20', 'text-apple-blue'); btn.classList.add('bg-gray-100', 'text-gray-600'); });
+            document.querySelectorAll('#filter-all, #filter-army').forEach(btn => { btn.classList.remove('bg-apple-blue/20', 'text-apple-blue'); btn.classList.add('bg-gray-100', 'text-gray-600'); });
             event.target.classList.remove('bg-gray-100', 'text-gray-600');
             event.target.classList.add('bg-apple-blue/20', 'text-apple-blue');
             renderExecutionStream();
@@ -3103,7 +3103,7 @@
             if (!container) return;
             let filtered = executionStream;
             if (filter !== 'all') { filtered = executionStream.filter(e => e.type === filter); }
-            container.innerHTML = filtered.map(e => `<div class="stream-item ${e.type === 'big' ? 'bg-apple-blue/10' : 'bg-apple-purple/10'}"><div class="flex justify-between"><span class="text-xs text-gray-600">${e.time}</span></div><div class="text-xs">${e.message}</div></div>`).join('');
+            container.innerHTML = filtered.map(e => `<div class="stream-item bg-apple-purple/10"><div class="flex justify-between"><span class="text-xs text-gray-600">${e.time}</span></div><div class="text-xs">${e.message}</div></div>`).join('');
         }
 
         function filterLobsters(filter) {
@@ -3212,7 +3212,8 @@
             setInterval(tickUniversity, 3500); // 进化学院课程进度与指标缓慢动态
             setInterval(tickLearningInterfaces, 2500); // 进化学院各课程学习流动态追加
             setInterval(() => {
-                const newItem = { type: Math.random() > 0.3 ? 'army' : 'big', time: new Date().toLocaleTimeString('zh-CN', {hour12: false}), message: `🦞 ${Math.random() > 0.3 ? '小龙虾 #' + Math.floor(Math.random() * 500 + 1).toString().padStart(3, '0') : '大龙虾'} 执行 ${products[Math.floor(Math.random() * products.length)].name} ${Math.random() > 0.5 ? '买入' : '卖出'} $${Math.floor(Math.random() * 10000)} @ $${(Math.random() * 100).toFixed(2)}` };
+                // 大龙虾不做单：只生成小龙虾军团的执行记录
+                const newItem = { type: 'army', time: new Date().toLocaleTimeString('zh-CN', {hour12: false}), message: `🦞 小龙虾 #${Math.floor(Math.random() * 500 + 1).toString().padStart(3, '0')} 执行 ${products[Math.floor(Math.random() * products.length)].name} ${Math.random() > 0.5 ? '买入' : '卖出'} $${Math.floor(Math.random() * 10000)} @ $${(Math.random() * 100).toFixed(2)}` };
                 executionStream.unshift(newItem);
                 if (executionStream.length > 50) executionStream.pop();
                 renderExecutionStream();
