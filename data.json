@@ -1,6 +1,6 @@
 {
   "backend": "github-actions",
-  "updatedAt": "2026-11-21T13:38:47+0000",
+  "updatedAt": "2026-11-21T20:13:29+0000",
   "sources": {
     "BTC-5M": "okx",
     "ETH-1H": "okx",
@@ -18,12 +18,12 @@
     "美元": "exchangerate"
   },
   "prices": {
-    "BTC-5M": 60521.8,
-    "ETH-1H": 1706.25,
+    "BTC-5M": 60339.3,
+    "ETH-1H": 1686.24,
     "SOL-15M": 70.53,
-    "MATIC-30M": 0.07645,
-    "DOGE-5M": 0.05525,
-    "XRP-5M": 0.9253,
+    "MATIC-30M": 0.07575,
+    "DOGE-5M": 0.05524,
+    "XRP-5M": 0.9372,
     "英伟达[NVIDIA]": 125.53,
     "特斯拉[TSLA]": 345.82,
     "长鑫科技": 58.3,
